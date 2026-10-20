@@ -255,7 +255,7 @@ export const SEED_ORDERS: SeedOrder[] = [
     skus: [
       { sku: 'VL-CPU-9700X', qty: 1 },
       { sku: 'VL-MB-B650-GPLUS', qty: 1 },
-      { sku: 'VL-RAM-VENG-32-6000', qty: 1 },
+      { sku: 'VL-RAM-FLAREX5-32-6000', qty: 1 },
       { sku: 'VL-GPU-5090-ASTRAL', qty: 1 },
       { sku: 'VL-SSD-990PRO-2TB', qty: 1 },
       { sku: 'VL-COOL-NHD15G2', qty: 1 },
@@ -268,7 +268,7 @@ export const SEED_ORDERS: SeedOrder[] = [
     logs: [
       { stage: 'ORDER_CONFIRMED', hoursAgo: 20, technician: 'SYSTEM', notes: 'TIGHT_TOLERANCE build flagged for technician clearance check.' },
       { stage: 'PARTS_ALLOCATED_BIN_LOCKED', hoursAgo: 12, technician: 'TECH-ORTIZ-11', metrics: { serials: { GPU: 'S2N0KX01A4-71', CASE: '4000DRS-55102' } } },
-      { stage: 'BENCH_ASSEMBLY_IN_PROGRESS', hoursAgo: 2, technician: 'TECH-VANCE-04', metrics: { bench_bay_id: 'ESD-BAY-07' }, notes: '358mm GPU in 360mm chassis: installing diagonally before front fans. NH-D15 G2 front fan offset +12mm for 44mm DIMMs.' }
+      { stage: 'BENCH_ASSEMBLY_IN_PROGRESS', hoursAgo: 2, technician: 'TECH-VANCE-04', metrics: { bench_bay_id: 'ESD-BAY-07' }, notes: '358mm GPU in 360mm chassis: installing diagonally before front fans. NH-D15 G2 front fan raised 3mm to clear 33mm Flare X5 DIMMs (1mm margin verified with feeler gauge).' }
     ]
   },
   {
