@@ -11,7 +11,11 @@ export async function hmacSign(secret: string, message: string): Promise<string>
 
 export async function hmacVerify(secret: string, message: string, signature: string): Promise<boolean> {
   try {
-    return await crypto.subtle.verify('HMAC', await key(secret), buf(fromBase64Url(signature)), buf(utf8(message)));
+    const raw = fromBase64Url(signature);
+    // Canonical-encoding check: base64url's final char carries unused padding bits, so several
+    // strings decode to the same MAC. Accept only the exact canonical form (no token malleability).
+    if (raw.length !== 32 || toBase64Url(raw) !== signature) return false;
+    return await crypto.subtle.verify('HMAC', await key(secret), buf(raw), buf(utf8(message)));
   } catch {
     return false;
   }
