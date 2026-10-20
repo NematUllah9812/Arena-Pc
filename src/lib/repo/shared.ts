@@ -18,8 +18,8 @@ export function effectivePrice(p: Pick<Product, 'sale_price_cents' | 'base_price
 
 export function toPublicProduct(p: Product): PublicProduct {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { cost_price_cents, dual_admin_price_override_token, ...rest } = p;
-  return { ...rest, available_quantity: Math.max(0, p.stock_quantity - p.reserved_quantity) };
+  const { cost_price_cents, dual_admin_price_override_token, days_in_inventory, overstock_priority, stock_quantity, reserved_quantity, ...rest } = p;
+  return { ...rest, available_quantity: Math.max(0, stock_quantity - reserved_quantity) };
 }
 
 function tokenize(s: string): string[] {
@@ -81,7 +81,7 @@ export function filterAndSortProducts(products: PublicProduct[], q: CatalogQuery
       case 'performance':
         return b.performance_score - a.performance_score;
       case 'newest':
-        return b.created_at.localeCompare(a.created_at) || a.days_in_inventory - b.days_in_inventory;
+        return b.created_at.localeCompare(a.created_at) || a.id.localeCompare(b.id);
       default: {
         // featured: in-stock first, then deals, then performance
         const stock = Number(b.available_quantity > 0) - Number(a.available_quantity > 0);

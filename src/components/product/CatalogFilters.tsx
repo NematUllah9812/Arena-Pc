@@ -28,6 +28,7 @@ export function CatalogFilters({ facets, category, total }: { facets: HardwareFa
 
   const set = (key: string, value: string | null) => {
     const next = new URLSearchParams(params.toString());
+    next.delete('page');
     if (value) next.set(key, value);
     else next.delete(key);
     start(() => router.replace(`${path}?${next.toString()}`, { scroll: false }));

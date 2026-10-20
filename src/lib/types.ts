@@ -74,8 +74,11 @@ export interface Product {
   updated_at: string;
 }
 
-/** Storefront-safe projection: no cost / margin / override columns. */
-export type PublicProduct = Omit<Product, 'cost_price_cents' | 'dual_admin_price_override_token'> & {
+/** Columns that never cross the server → browser boundary (cost, margin, velocity, warehouse ops). */
+export const INTERNAL_PRODUCT_KEYS = ['cost_price_cents', 'dual_admin_price_override_token', 'days_in_inventory', 'overstock_priority', 'stock_quantity', 'reserved_quantity'] as const;
+
+/** Storefront-safe projection: no cost / margin / velocity / raw stock columns (customers see available_quantity). */
+export type PublicProduct = Omit<Product, (typeof INTERNAL_PRODUCT_KEYS)[number]> & {
   available_quantity: number;
 };
 

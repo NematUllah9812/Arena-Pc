@@ -105,7 +105,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="flex flex-wrap items-center gap-2">
             <StockBadge available={p.available_quantity} bin={p.warehouse_bin} />
             {p.is_leftover_clearance ? <span className="badge badge-tungsten">Leftover Clearance</span> : null}
-            {p.overstock_priority ? <span className="badge badge-cryo">Overstock Priority</span> : null}
           </div>
 
           <div className="hud-panel chamfer flex flex-col gap-5 p-6">

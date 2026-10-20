@@ -2,14 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getRepo } from '@/lib/repo';
 import { parseCatalogQuery } from '@/lib/catalog-query';
-import { CATEGORY_LABEL, CATEGORY_SLUG, SLUG_CATEGORY } from '@/lib/format';
+import { CATEGORY_LABEL, SLUG_CATEGORY } from '@/lib/format';
 import { CatalogView } from '../CatalogView';
 
 export const dynamic = 'force-dynamic';
-
-export function generateStaticParams() {
-  return Object.values(CATEGORY_SLUG).map((category) => ({ category }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category } = await params;
@@ -24,5 +20,5 @@ export default async function CategoryPage({ params, searchParams }: { params: P
   if (!cat) notFound();
   const repo = getRepo();
   const [products, facets] = await Promise.all([repo.listProducts(parseCatalogQuery(sp, cat)), repo.getFacets()]);
-  return <CatalogView products={products} facets={facets} category={cat} title={CATEGORY_LABEL[cat]} eyebrow={`CATALOG // ${cat}`} />;
+  return <CatalogView products={products} facets={facets} category={cat} title={CATEGORY_LABEL[cat]} eyebrow={`CATALOG // ${cat}`} page={Number(sp.page) || 1} searchParams={sp} />;
 }

@@ -14,5 +14,5 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const repo = getRepo();
   const q = parseCatalogQuery(sp);
   const [products, facets] = await Promise.all([repo.listProducts(q), repo.getFacets()]);
-  return <CatalogView products={products} facets={facets} title={q.q ? `Results: “${q.q}”` : 'Component Catalog'} eyebrow="INVENTORY // LIVE FROM AUSTIN HUB" />;
+  return <CatalogView products={products} facets={facets} title={q.q ? `Results: “${q.q}”` : 'Component Catalog'} eyebrow="INVENTORY // LIVE FROM AUSTIN HUB" page={Number(sp.page) || 1} searchParams={sp} />;
 }
