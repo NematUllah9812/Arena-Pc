@@ -1,10 +1,19 @@
 export function VortexMark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
-      <path d="M2 2h20l8 8v20H10l-8-8V2z" stroke="#D4FF00" strokeWidth="1.5" />
-      <path d="M9 9l7 14 7-14" stroke="#F3F5F8" strokeWidth="2.2" strokeLinecap="square" />
-      <path d="M16 23v4" stroke="#D4FF00" strokeWidth="1.5" />
-      <circle cx="16" cy="9" r="1.4" fill="#00F0FF" />
+      <rect width="32" height="32" rx="8" fill="#2563EB" />
+      <path d="M9 10l7 13 7-13" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+export function Wordmark() {
+  return (
+    <span className="flex items-center gap-2.5">
+      <VortexMark />
+      <span className="text-[1.15rem] font-bold tracking-tight text-primary">
+        Vortex<span className="text-volt">Labs</span>
+      </span>
+    </span>
   );
 }

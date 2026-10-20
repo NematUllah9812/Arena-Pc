@@ -141,7 +141,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const add = useCallback<CartApi['add']>(
     (p, opts = {}) => {
       if (p.available_quantity <= 0) {
-        push({ title: 'SKU depleted', body: `${p.name} has no unreserved stock right now.`, tone: 'error' });
+        push({ title: 'Out of stock', body: `${p.name} is sold out right now.`, tone: 'error' });
         return;
       }
       const line = lineFromProduct(p, opts);
@@ -165,8 +165,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       playClick('thock');
       if (!opts.silent)
         push({
-          title: replaced ? 'Slot swapped' : 'Added to manifest',
-          body: replaced ? `${p.name} replaced ${replaced}.` : `${p.name} · ${opts.flashDealId ? 'flash-deal price locks at checkout' : 'locks for 10 min at checkout'}`
+          title: replaced ? 'Part replaced' : 'Added to cart',
+          body: replaced ? `${p.name} replaced ${replaced}.` : p.name
         });
     },
     [mutate, push]
@@ -223,7 +223,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const ms = new Date(state.lease.expiresAt).getTime() - Date.now();
     const t = setTimeout(() => {
       setState((s) => ({ ...s, lease: null }));
-      push({ title: 'Inventory lock expired', body: 'Your 10-minute reservation lapsed. Re-lock to continue checkout.', tone: 'warn' });
+      push({ title: 'Reservation expired', body: 'We held your items for 10 minutes. Head back to your cart to reserve them again.', tone: 'warn' });
     }, Math.max(0, ms));
     return () => clearTimeout(t);
   }, [state.lease, push]);

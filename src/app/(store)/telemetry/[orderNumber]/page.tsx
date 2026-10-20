@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ orderNumber: string }> }): Promise<Metadata> {
   const { orderNumber } = await params;
-  return { title: `Telemetry ${orderNumber.toUpperCase()}`, robots: { index: false, follow: false } };
+  return { title: `Order ${orderNumber.toUpperCase()}`, robots: { index: false, follow: false } };
 }
 
 export default async function TelemetryPage({ params, searchParams }: { params: Promise<{ orderNumber: string }>; searchParams: Promise<{ welcome?: string }> }) {
@@ -16,12 +16,10 @@ export default async function TelemetryPage({ params, searchParams }: { params: 
   const view = await getPublicTelemetry(decodeURIComponent(orderNumber));
   if (!view) notFound();
   return (
-    <div className="container-hud py-10 md:py-14">
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-3">
-          <span className="hud-eyebrow">RIG FORGE LIVE // {STAGES[view.current_stage].label.toUpperCase()}</span>
-          <h1 className="hud-title tabular text-4xl md:text-6xl">{view.order_number}</h1>
-        </div>
+    <div className="container-hud py-10">
+      <header className="mb-8">
+        <p className="text-sm text-muted">Order status · {STAGES[view.current_stage].label}</p>
+        <h1 className="hud-title tabular mt-1 text-3xl md:text-4xl">Order {view.order_number}</h1>
       </header>
       <TelemetryTracker initial={view} welcome={sp.welcome === '1'} />
     </div>

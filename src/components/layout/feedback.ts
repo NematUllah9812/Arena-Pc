@@ -3,7 +3,7 @@
  * Optional WebAudio "Cherry MX Blue / Topre thock" feedback (Spec §2.1).
  * Synthesised 8ms buffers — no audio assets. Off by default; persisted per device.
  */
-const KEY = 'vortex.audio.v1';
+const KEY = 'vortex.audio.v2';
 let ctx: AudioContext | null = null;
 
 export function audioEnabled(): boolean {

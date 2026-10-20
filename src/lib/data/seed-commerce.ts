@@ -18,11 +18,11 @@ export interface SeedDeal {
 }
 
 export const SEED_DEALS: SeedDeal[] = [
-  { key: 'deal-7800x3d', sku: 'VL-CPU-7800X3D', title: 'V-CACHE LIQUIDATION // 7800X3D', price: 329, maxClaims: 40, claimed: 31, startsOffsetHours: -6, durationHours: 14 },
-  { key: 'deal-9070', sku: 'VL-GPU-9070-HELLHOUND', title: 'RDNA 4 OVERSTOCK DROP', price: 529, maxClaims: 25, claimed: 9, startsOffsetHours: -2, durationHours: 26, accent: '#FF3B00' },
-  { key: 'deal-p3plus', sku: 'VL-SSD-P3PLUS-2TB', title: '2TB LIBRARY DRIVE BLITZ', price: 89, maxClaims: 60, claimed: 22, startsOffsetHours: -10, durationHours: 40 },
-  { key: 'deal-a850g', sku: 'VL-PSU-A850G', title: '850W POWER CELL CLEARANCE', price: 94, maxClaims: 30, claimed: 27, startsOffsetHours: -20, durationHours: 24 },
-  { key: 'deal-b650m', sku: 'VL-MB-B650M-PRORS', title: 'LEFTOVER BIN A4 // B650M', price: 104, maxClaims: 20, claimed: 4, startsOffsetHours: 3, durationHours: 24, accent: '#00F0FF' }
+  { key: 'deal-7800x3d', sku: 'VL-CPU-7800X3D', title: 'Ryzen 7 7800X3D price drop', price: 329, maxClaims: 40, claimed: 31, startsOffsetHours: -6, durationHours: 14 },
+  { key: 'deal-9070', sku: 'VL-GPU-9070-HELLHOUND', title: 'Radeon RX 9070 deal', price: 529, maxClaims: 25, claimed: 9, startsOffsetHours: -2, durationHours: 26, accent: '#2563EB' },
+  { key: 'deal-p3plus', sku: 'VL-SSD-P3PLUS-2TB', title: '2TB SSD deal', price: 89, maxClaims: 60, claimed: 22, startsOffsetHours: -10, durationHours: 40 },
+  { key: 'deal-a850g', sku: 'VL-PSU-A850G', title: '850W power supply clearance', price: 94, maxClaims: 30, claimed: 27, startsOffsetHours: -20, durationHours: 24 },
+  { key: 'deal-b650m', sku: 'VL-MB-B650M-PRORS', title: 'B650M motherboard clearance', price: 104, maxClaims: 20, claimed: 4, startsOffsetHours: 3, durationHours: 24, accent: '#2563EB' }
 ];
 
 export function materializeDeals(now: number = Date.now()): FlashDeal[] {
@@ -40,7 +40,7 @@ export function materializeDeals(now: number = Date.now()): FlashDeal[] {
       reserved_claims: 0,
       starts_at: starts.toISOString(),
       expires_at: expires.toISOString(),
-      banner_accent_hex: d.accent ?? '#FF3B00',
+      banner_accent_hex: d.accent ?? '#2563EB',
       is_active: true,
       created_at: new Date(now).toISOString()
     };

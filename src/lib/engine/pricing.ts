@@ -35,17 +35,17 @@ export function quoteOrder(input: QuoteInput): OrderQuote {
       assemblyFeeWaivedCents = FEES.PRO_BUILT_ASSEMBLY_CENTS;
       services.push({
         code: SERVICE_CODES.PRO_ASSEMBLY,
-        name: 'Foundry Assembly, Cable Routing, BIOS/EXPO Tuning & 72h Stress Test',
+        name: 'Professional assembly & stress test',
         price_cents: 0,
-        reason: 'Waived — Syndicate Package Offer'
+        reason: 'Free with prebuilt PCs'
       });
     } else {
       assemblyFeeCents = FEES.PRO_BUILT_ASSEMBLY_CENTS;
       services.push({
         code: SERVICE_CODES.PRO_ASSEMBLY,
-        name: 'Foundry Assembly, Cable Routing, BIOS/EXPO Tuning & 72h Stress Test',
+        name: 'Professional assembly & stress test',
         price_cents: FEES.PRO_BUILT_ASSEMBLY_CENTS,
-        reason: 'Mode B — Pro-Built Foundry Rig flat fee'
+        reason: 'Assembly, cable management, BIOS setup and 4-hour test'
       });
     }
   }
@@ -70,9 +70,9 @@ export function quoteOrder(input: QuoteInput): OrderQuote {
     servicesFeeCents += FEES.DIY_BIOS_PREFLASH_CENTS;
     services.push({
       code: SERVICE_CODES.BIOS_FLASH_DIY,
-      name: 'Pre-Ship Motherboard BIOS Flash & Socket Pin Inspection',
+      name: 'BIOS update before shipping',
       price_cents: FEES.DIY_BIOS_PREFLASH_CENTS,
-      reason: 'Optional DIY service selected at checkout'
+      reason: 'Optional add-on'
     });
   }
   if (isPro) includesBiosPreflash = true; // Included free on every Pro-Built rig.

@@ -1,29 +1,38 @@
 import type { ConfidenceTier } from '@/lib/types';
 
-const TIER_LABEL: Record<ConfidenceTier, string> = {
-  VERIFIED_FIT: 'Verified Fit',
-  TIGHT_TOLERANCE: 'Tight Tolerance',
-  HARD_CONFLICT: 'Hard Conflict'
+export const TIER_LABEL: Record<ConfidenceTier, string> = {
+  VERIFIED_FIT: 'Compatible',
+  TIGHT_TOLERANCE: 'Tight fit — we check it',
+  HARD_CONFLICT: 'Not compatible'
 };
 
 export function TierBadge({ tier, compact = false }: { tier: ConfidenceTier; compact?: boolean }) {
   const cls = tier === 'VERIFIED_FIT' ? 'badge-verified' : tier === 'TIGHT_TOLERANCE' ? 'badge-tolerance' : 'badge-conflict';
+  const label = compact ? { VERIFIED_FIT: 'Compatible', TIGHT_TOLERANCE: 'Tight fit', HARD_CONFLICT: 'Conflict' }[tier] : TIER_LABEL[tier];
   return (
     <span className={`badge ${cls}`}>
       <span className="status-dot" />
-      {compact ? tier.replace('_', ' ') : TIER_LABEL[tier]}
+      {label}
     </span>
   );
 }
 
-export function StockBadge({ available, bin }: { available: number; bin?: string }) {
-  const tone = available === 0 ? 'badge-conflict' : available <= 5 ? 'badge-tolerance' : 'badge-verified';
-  const label = available === 0 ? 'Depleted' : available <= 5 ? `${available} left` : `${available} in stock`;
+export function StockBadge({ available }: { available: number; bin?: string }) {
+  if (available === 0)
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[0.8125rem] font-medium text-conflict">
+        <span className="status-dot" /> Out of stock
+      </span>
+    );
+  if (available <= 5)
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[0.8125rem] font-medium text-tolerance">
+        <span className="status-dot" /> Only {available} left
+      </span>
+    );
   return (
-    <span className={`badge ${tone}`}>
-      <span className={`status-dot ${available > 0 && available <= 5 ? 'pulse anim-continuous' : ''}`} />
-      {label}
-      {bin ? <span className="text-muted">· BIN #{bin}</span> : null}
+    <span className="inline-flex items-center gap-1.5 text-[0.8125rem] font-medium text-verified">
+      <span className="status-dot" /> In stock
     </span>
   );
 }

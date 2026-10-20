@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { money } from '@/lib/format';
 import type { IndexEntry } from './search.worker';
 import { playClick } from '@/components/layout/feedback';
+import { SearchIcon } from '@/components/ui/Icons';
 
 export function SearchPalette() {
   const [open, setOpen] = useState(false);
@@ -79,9 +80,9 @@ export function SearchPalette() {
 
   return (
     <dialog ref={dialog} className="hud-dialog" onClose={() => setOpen(false)} onClick={(e) => e.target === dialog.current && setOpen(false)} aria-label="Search the catalog">
-      <div className="hud-panel chamfer reticle">
+      <div className="hud-panel overflow-hidden shadow-2xl">
         <div className="flex items-center gap-3 border-b border-hairline px-4">
-          <span className="font-mono text-xs text-volt">&gt;_</span>
+          <SearchIcon size={18} className="text-muted" />
           <input
             ref={input}
             value={q}
@@ -101,17 +102,17 @@ export function SearchPalette() {
                 }
               }
             }}
-            placeholder="Search 4090, AM5, DDR5-6000, 360mm AIO…"
-            className="w-full bg-transparent py-4 font-mono text-sm text-primary outline-none placeholder:text-muted"
+            placeholder="Search products, brands or specs (e.g. RTX 5080, DDR5)"
+            className="w-full bg-transparent py-4 text-[0.95rem] text-primary outline-none placeholder:text-muted"
             aria-label="Search query"
           />
-          <kbd className="hud-label">ESC</kbd>
+          <kbd className="rounded border border-hairline px-1.5 text-xs text-muted">Esc</kbd>
         </div>
         <ul className="max-h-[55vh] overflow-y-auto py-2" role="listbox">
-          {!ready && <li className="px-4 py-3 font-mono text-xs text-muted">Indexing catalog in Web Worker…</li>}
+          {!ready && <li className="px-4 py-3 text-sm text-muted">Loading products…</li>}
           {ready && q && results.length === 0 && (
-            <li className="px-4 py-3 font-mono text-xs text-muted">
-              No direct hits. Press Enter for full-text search across specs.
+            <li className="px-4 py-3 text-sm text-muted">
+              No quick matches. Press Enter to search the full catalog.
             </li>
           )}
           {results.map((r, i) => (
@@ -120,22 +121,21 @@ export function SearchPalette() {
                 type="button"
                 onMouseEnter={() => setActive(i)}
                 onClick={() => go(r)}
-                className={`flex w-full items-center gap-4 px-4 py-2.5 text-left ${i === active ? 'bg-module-hover' : ''}`}
+                className={`flex w-full items-center gap-4 px-4 py-2.5 text-left ${i === active ? 'bg-chassis' : ''}`}
               >
-                <span className="hud-label w-10 shrink-0">{r.c.slice(0, 3)}</span>
-                <span className="min-w-0 flex-1">
+                                <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm text-primary">{r.n}</span>
-                  <span className="block font-mono text-[0.65rem] text-muted">{r.s}</span>
+                  <span className="block text-xs text-muted">{r.s}</span>
                 </span>
-                <span className="tabular text-sm text-volt">{money(r.p)}</span>
+                <span className="tabular text-sm font-semibold text-primary">{money(r.p)}</span>
               </button>
             </li>
           ))}
         </ul>
         <div className="flex items-center justify-between border-t border-hairline px-4 py-2">
-          <span className="hud-label">↑↓ navigate · ↵ open</span>
+          <span className="hud-label">↑↓ to navigate · Enter to open</span>
           <Link href="/catalog" className="hud-label hover:text-volt" onClick={() => setOpen(false)}>
-            Full catalog →
+            Browse all products ›
           </Link>
         </div>
       </div>
@@ -145,13 +145,15 @@ export function SearchPalette() {
 
 export function SearchButton({ className = '' }: { className?: string }) {
   return (
-    <button type="button" onClick={() => window.dispatchEvent(new Event('vortex:search'))} className={`btn-ghost size-sm ${className}`} aria-label="Search (Ctrl+K)">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-        <circle cx="7" cy="7" r="5" />
-        <path d="M11 11l4 4" />
-      </svg>
-      <span className="hidden lg:inline">Search</span>
-      <kbd className="hidden text-muted lg:inline">⌘K</kbd>
+    <button
+      type="button"
+      onClick={() => window.dispatchEvent(new Event('vortex:search'))}
+      className={`flex h-10 items-center gap-2 rounded-lg border border-hairline bg-chassis px-3 text-sm text-muted hover:border-[#d1d5db] md:w-56 xl:w-72 ${className}`}
+      aria-label="Search products (Ctrl+K)"
+    >
+      <SearchIcon size={17} />
+      <span className="hidden md:inline">Search products…</span>
+      <kbd className="ml-auto hidden rounded border border-hairline bg-white px-1.5 text-[0.7rem] xl:inline">Ctrl K</kbd>
     </button>
   );
 }

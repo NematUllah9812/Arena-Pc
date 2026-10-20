@@ -7,10 +7,10 @@ import { clientIp } from './rate-limit';
 import { SESSION_COOKIE, verifySession } from './session';
 
 export const ROLE_CAPABILITIES: Record<AdminRole, { label: string; can: string[] }> = {
-  OVERSEER: { label: 'Overseer', can: ['inventory', 'pricing', 'deals', 'foundry', 'audit', 'vault', 'override'] },
-  INVENTORY_COMMANDER: { label: 'Inventory Commander', can: ['inventory', 'audit'] },
-  PRICING_OPS: { label: 'Pricing Ops', can: ['pricing', 'deals', 'inventory', 'audit'] },
-  LEAD_TECHNICIAN: { label: 'Lead Technician', can: ['foundry'] }
+  OVERSEER: { label: 'Owner', can: ['inventory', 'pricing', 'deals', 'foundry', 'audit', 'vault', 'override'] },
+  INVENTORY_COMMANDER: { label: 'Inventory manager', can: ['inventory', 'audit'] },
+  PRICING_OPS: { label: 'Pricing manager', can: ['pricing', 'deals', 'inventory', 'audit'] },
+  LEAD_TECHNICIAN: { label: 'Lead technician', can: ['foundry'] }
 };
 
 export function can(admin: Pick<AdminVaultUser, 'role'>, capability: string): boolean {

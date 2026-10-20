@@ -27,9 +27,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="pointer-events-none fixed right-4 bottom-4 z-[200] flex w-[min(380px,calc(100vw-2rem))] flex-col gap-2" role="status" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`toast hud-glass-panel pointer-events-auto border border-hairline px-4 py-3 ${t.tone !== 'info' ? `tone-${t.tone}` : ''}`}>
-            <p className="font-mono text-[0.7rem] tracking-[0.14em] text-primary uppercase">{t.title}</p>
-            {t.body ? <p className="mt-1 text-xs leading-relaxed text-secondary">{t.body}</p> : null}
+          <div key={t.id} className={`toast pointer-events-auto rounded-xl border border-hairline bg-white px-4 py-3 shadow-lg ${t.tone !== 'info' ? `tone-${t.tone}` : ''}`}>
+            <p className="text-sm font-semibold text-primary">{t.title}</p>
+            {t.body ? <p className="mt-0.5 text-sm text-secondary">{t.body}</p> : null}
           </div>
         ))}
       </div>

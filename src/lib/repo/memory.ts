@@ -1,5 +1,6 @@
 import 'server-only';
 import { FEES } from '@/lib/config/company';
+import { CATEGORY_IMAGE } from '@/lib/format';
 import { buildSeedOrders } from '@/lib/data/build-seed-orders';
 import { SEED_PRODUCTS } from '@/lib/data/seed-catalog';
 import { SEED_PACKAGES, materializeDeals } from '@/lib/data/seed-commerce';
@@ -24,6 +25,7 @@ import type {
   PlaceOrderInput,
   PlaceOrderResult,
   PricingUpdateInput,
+  ProductImagesInput,
   Repository,
   ReserveResult
 } from './types';
@@ -448,6 +450,28 @@ export class MemoryRepository implements Repository {
     p.is_active = input.isActive;
     p.updated_at = nowIso();
     await this.writeAudit({ admin_id: input.adminId, action_type: 'INVENTORY_UPDATE', target_entity: 'products', target_id: p.sku, previous_state: prev, new_state: { stock_quantity: p.stock_quantity, warehouse_bin: p.warehouse_bin, overstock_priority: p.overstock_priority, is_leftover_clearance: p.is_leftover_clearance, is_active: p.is_active }, ip_address: input.ip });
+    return { ok: true, value: clone(p) };
+  }
+
+  async storeProductImage(productId: string, bytes: Uint8Array) {
+    const id = `img-${productId.slice(0, 8)}-${randomToken(8)}.webp`;
+    state().proofs.set(id, { bytes, contentType: 'image/webp' });
+    return `/api/media/proof/${id}`;
+  }
+
+  async deleteProductImage(url: string) {
+    const m = /^\/api\/media\/proof\/(img-[\w.-]+)$/.exec(url);
+    if (m) state().proofs.delete(m[1]);
+  }
+
+  async updateProductImages(input: ProductImagesInput): Promise<MutationResult<Product>> {
+    const p = state().products.get(input.productId);
+    if (!p) return { ok: false, error: 'PRODUCT_NOT_FOUND' };
+    const prev = { primary_image_url: p.primary_image_url, gallery_urls: [...p.gallery_urls] };
+    p.primary_image_url = input.photos[0] ?? CATEGORY_IMAGE[p.category];
+    p.gallery_urls = input.photos.slice(1);
+    p.updated_at = nowIso();
+    await this.writeAudit({ admin_id: input.adminId, action_type: 'PRODUCT_PHOTOS_UPDATE', target_entity: 'products', target_id: p.sku, previous_state: prev, new_state: { primary_image_url: p.primary_image_url, gallery_urls: p.gallery_urls }, ip_address: input.ip });
     return { ok: true, value: clone(p) };
   }
 
