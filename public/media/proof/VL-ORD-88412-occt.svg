@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <defs>
+    <radialGradient id="gpu" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFFBE0"/><stop offset=".18" stop-color="#FFE45C"/><stop offset=".42" stop-color="#FF8A00"/><stop offset=".7" stop-color="#C2185B"/><stop offset="1" stop-color="#2A0A5E" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cpu" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".2" stop-color="#FFD54F"/><stop offset=".5" stop-color="#FF5722"/><stop offset=".8" stop-color="#7B1FA2"/><stop offset="1" stop-color="#1A0740" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vrm" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FF9800"/><stop offset=".6" stop-color="#9C27B0"/><stop offset="1" stop-color="#1A0740" stop-opacity="0"/></radialGradient>
+    <linearGradient id="scale" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#0B0630"/><stop offset=".25" stop-color="#4A148C"/><stop offset=".5" stop-color="#C2185B"/><stop offset=".75" stop-color="#FF8A00"/><stop offset="1" stop-color="#FFFDE7"/></linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .06 0"/></filter>
+  </defs>
+  <rect width="960" height="540" fill="#0B0630"/>
+  <g filter="url(#blur)">
+    <rect x="120" y="60" width="640" height="420" fill="#1E0B4F"/>
+    <rect x="160" y="300" width="560" height="130" fill="#3A0F6B"/>
+    <ellipse cx="300" cy="365" rx="120" ry="70" fill="url(#gpu)"/>
+    <ellipse cx="460" cy="365" rx="130" ry="72" fill="url(#gpu)"/>
+    <ellipse cx="610" cy="365" rx="110" ry="66" fill="url(#gpu)"/>
+    <ellipse cx="420" cy="170" rx="95" ry="80" fill="url(#cpu)"/>
+    <ellipse cx="300" cy="150" rx="60" ry="30" fill="url(#vrm)"/>
+    <ellipse cx="420" cy="80" rx="140" ry="22" fill="url(#vrm)" opacity=".7"/>
+    <rect x="560" y="110" width="40" height="140" fill="#6A1B9A"/>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="1.5">
+    <rect x="160" y="300" width="560" height="130"/>
+    <rect x="370" y="120" width="100" height="100"/>
+    <path d="M420 160v20M410 170h20"/>
+    <path d="M460 355v20M450 365h20"/>
+  </g>
+  <rect width="960" height="540" filter="url(#noise)"/>
+  <rect x="880" y="60" width="24" height="420" fill="url(#scale)" stroke="#FFFFFF" stroke-opacity=".4"/>
+  <g font-family="monospace" fill="#FFFFFF" font-size="14">
+    <text x="24" y="34">VORTEX LABS // BURN-IN PROOF // VL-ORD-88412</text>
+    <text x="24" y="520">OCCT CPU+RAM 240:00 PASS · FURMARK 20:00 · CPU PEAK 71.0°C · GPU PEAK 64.0°C · TIME SPY 41870</text>
+    <text x="478" y="160" fill="#FFFDE7">CPU 71.0°C</text>
+    <text x="510" y="400" fill="#FFFDE7">GPU 64.0°C</text>
+    <text x="846" y="56">90°C</text>
+    <text x="846" y="500">20°C</text>
+  </g>
+</svg>
