@@ -9,21 +9,21 @@ export function PackageActions({ slug, name, components, inStock }: { slug: stri
   const { push } = useToast();
   const router = useRouter();
   const load = (dest: '/cart' | '/forge') => {
-    if (lines.length && !confirm('Replace the current manifest with this Syndicate Package?')) return;
+    if (lines.length && !confirm('Replace the items in your cart with this PC?')) return;
     replaceWith(
       components.map((c) => lineFromProduct(c)),
       { packageSlug: dest === '/cart' ? slug : null, mode: 'PRO_BUILT_FOUNDRY_RIG' }
     );
-    push({ title: `${name} loaded`, body: dest === '/cart' ? '$149 Foundry assembly fee waived.' : 'Customize in the Rig Forge. Modifying parts converts it to a custom build.' });
+    push({ title: `${name} loaded`, body: dest === '/cart' ? 'Free assembly applied.' : 'Swap any part you like. Changing parts turns it into a custom build.' });
     router.push(dest);
   };
   return (
-    <div className="flex flex-wrap gap-3">
-      <button type="button" className="btn-overclock" disabled={!inStock} onClick={() => load('/cart')}>
-        {inStock ? 'Deploy This Rig' : 'Component Backorder'}
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <button type="button" className="btn-overclock flex-1" disabled={!inStock} onClick={() => load('/cart')}>
+        {inStock ? 'Add to cart' : 'Temporarily unavailable'}
       </button>
-      <button type="button" className="btn-ghost" onClick={() => load('/forge')}>
-        Customize in Rig Forge
+      <button type="button" className="btn-ghost flex-1" onClick={() => load('/forge')}>
+        Customize parts
       </button>
     </div>
   );

@@ -4,11 +4,11 @@ import { requireAdminPage, can } from '@/lib/security/admin';
 import { STAGES } from '@/lib/engine/build-bay';
 import { BUILD_BAY_STAGES } from '@/lib/types';
 import { formatDateTime, money } from '@/lib/format';
-import { AdminShell } from '@/components/admin/AdminShell';
-import { HudCard } from '@/components/hud/HudCard';
+import { AdminPanel, AdminShell } from '@/components/admin/AdminShell';
+import { auditLabel } from '@/components/admin/audit-labels';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Command' };
+export const metadata = { title: 'Dashboard' };
 
 export default async function AdminHome({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {
   const admin = await requireAdminPage();
@@ -20,112 +20,149 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
     can(admin, 'deals') ? repo.listFlashDeals({ includeUpcoming: true }) : Promise.resolve([]),
     can(admin, 'audit') ? repo.listAuditLogs(8) : Promise.resolve([])
   ]);
+  const open = orders.filter((o) => o.current_stage !== 'DELIVERED');
   const byStage = Object.fromEntries(BUILD_BAY_STAGES.map((s) => [s, orders.filter((o) => o.current_stage === s).length]));
-  const lowStock = products.filter((p) => p.is_active && p.stock_quantity - p.reserved_quantity <= 3).sort((a, b) => a.stock_quantity - b.stock_quantity);
+  const maxStage = Math.max(1, ...Object.values(byStage));
+  const lowStock = products.filter((p) => p.is_active && p.stock_quantity - p.reserved_quantity <= 3).sort((a, b) => a.stock_quantity - a.reserved_quantity - (b.stock_quantity - b.reserved_quantity));
   const aged = products.filter((p) => p.days_in_inventory >= 90).length;
-  const openValue = orders.filter((o) => o.current_stage !== 'DELIVERED').reduce((s, o) => s + o.total_charged_cents, 0);
+  const noPhotos = products.filter((p) => p.is_active && p.category !== 'INTERNAL_BRACE' && p.primary_image_url.startsWith('/media/cat-')).length;
+  const openValue = open.reduce((s, o) => s + o.total_charged_cents, 0);
+
+  const stats: [string, string | number, string?][] = [
+    ['Open orders', open.length],
+    ['Value of open orders', money(openValue)],
+    ['Need a fit check', open.filter((o) => o.requires_tech_clearance_check).length, 'Tight-fit builds to check by hand'],
+    ['Slow movers (90+ days)', can(admin, 'inventory') ? aged : '—']
+  ];
 
   return (
-    <AdminShell admin={admin} active="/admin">
-      {denied ? <p className="mb-6 border-l-2 border-conflict bg-conflict/5 px-4 py-2 font-mono text-xs text-conflict">Capability “{denied}” is not granted to your role.</p> : null}
-      <h1 className="hud-title mb-6 text-3xl">Command</h1>
-      <div className="grid grid-cols-2 gap-px border border-hairline bg-hairline md:grid-cols-4">
-        {[
-          ['Open orders', orders.filter((o) => o.current_stage !== 'DELIVERED').length],
-          ['Open order value', money(openValue)],
-          ['Tech clearance checks', orders.filter((o) => o.requires_tech_clearance_check && o.current_stage !== 'DELIVERED').length],
-          ['Aged SKUs (90d+)', can(admin, 'inventory') ? aged : '—']
-        ].map(([l, v]) => (
-          <div key={String(l)} className="bg-chassis p-4">
-            <p className="hud-label">{l}</p>
-            <p className="tabular mt-1 text-2xl">{v}</p>
+    <AdminShell admin={admin} active="/admin" title={`Welcome back, ${admin.codename}`} description="Here’s what’s happening in the store today.">
+      {denied ? <p className="mb-6 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-4 py-2.5 text-sm text-conflict">Your role doesn&rsquo;t have access to “{denied}”.</p> : null}
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {stats.map(([l, v, hint]) => (
+          <div key={l} className="rounded-xl border border-hairline bg-white p-5">
+            <p className="text-sm text-muted">{l}</p>
+            <p className="tabular mt-1.5 text-2xl font-semibold text-primary">{v}</p>
+            {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
           </div>
         ))}
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <HudCard innerClassName="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="hud-eyebrow">Build Bay load</span>
-            {can(admin, 'foundry') ? (
-              <Link href="/admin/foundry" className="hud-label hover:text-volt">
-                Queue →
+      {can(admin, 'inventory') && noPhotos > 0 ? (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#bfdbfe] bg-[#eff6ff] px-5 py-3.5 text-sm">
+          <span className="text-primary">
+            <strong className="font-semibold">{noPhotos} products</strong> are still using a generic category photo.
+          </span>
+          <Link href="/admin/inventory?photos=missing" className="font-medium text-volt hover:underline">
+            Add photos
+          </Link>
+        </div>
+      ) : null}
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <AdminPanel
+          title="Orders by stage"
+          action={
+            can(admin, 'foundry') ? (
+              <Link href="/admin/foundry" className="text-sm text-volt hover:underline">
+                View all
               </Link>
-            ) : null}
-          </div>
-          <ul className="flex flex-col gap-2">
+            ) : null
+          }
+        >
+          <ul className="flex flex-col gap-2.5">
             {BUILD_BAY_STAGES.map((s) => (
-              <li key={s} className="grid grid-cols-[140px_1fr_32px] items-center gap-3">
-                <span className="font-mono text-[0.65rem] text-secondary">{STAGES[s].short}</span>
-                <div className="h-1.5 bg-elevated">
-                  <div className="h-full bg-volt" style={{ width: `${Math.min(100, (byStage[s] / Math.max(1, orders.length)) * 100)}%` }} />
+              <li key={s} className="grid grid-cols-[150px_1fr_28px] items-center gap-3 text-sm">
+                <span className="truncate text-secondary">{STAGES[s].label}</span>
+                <div className="h-2 overflow-hidden rounded-full bg-elevated">
+                  <div className="h-full rounded-full bg-volt" style={{ width: `${(byStage[s] / maxStage) * 100}%` }} />
                 </div>
-                <span className="tabular text-right font-mono text-xs">{byStage[s]}</span>
+                <span className="tabular text-right font-medium">{byStage[s]}</span>
               </li>
             ))}
           </ul>
-        </HudCard>
+        </AdminPanel>
 
         {can(admin, 'inventory') ? (
-          <HudCard innerClassName="p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="hud-eyebrow">Low stock</span>
-              <Link href="/admin/inventory" className="hud-label hover:text-volt">
-                Inventory →
+          <AdminPanel
+            title="Low stock"
+            flush
+            action={
+              <Link href="/admin/inventory" className="text-sm text-volt hover:underline">
+                Manage products
               </Link>
-            </div>
+            }
+          >
             {lowStock.length ? (
-              <ul className="flex flex-col gap-1.5 text-sm">
-                {lowStock.slice(0, 8).map((p) => (
-                  <li key={p.id} className="flex justify-between gap-3">
-                    <span className="truncate text-secondary">{p.name}</span>
-                    <span className={`tabular font-mono text-xs ${p.stock_quantity - p.reserved_quantity <= 0 ? 'text-conflict' : 'text-tolerance'}`}>
-                      {p.stock_quantity - p.reserved_quantity} avail · BIN {p.warehouse_bin}
+              <ul className="divide-y divide-hairline text-sm">
+                {lowStock.slice(0, 7).map((p) => {
+                  const avail = p.stock_quantity - p.reserved_quantity;
+                  return (
+                    <li key={p.id} className="flex items-center justify-between gap-3 px-5 py-2.5">
+                      <span className="truncate text-primary">{p.name}</span>
+                      <span className={`tabular shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${avail <= 0 ? 'bg-[#fef2f2] text-conflict' : 'bg-[#fffbeb] text-tolerance'}`}>
+                        {avail <= 0 ? 'Out of stock' : `${avail} left`}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="p-5 text-sm text-verified">Everything is well stocked.</p>
+            )}
+          </AdminPanel>
+        ) : null}
+
+        {can(admin, 'deals') ? (
+          <AdminPanel
+            title="Active deals"
+            flush
+            action={
+              <Link href="/admin/deals" className="text-sm text-volt hover:underline">
+                Manage deals
+              </Link>
+            }
+          >
+            {deals.length ? (
+              <ul className="divide-y divide-hairline text-sm">
+                {deals.map((d) => (
+                  <li key={d.id} className="flex items-center justify-between gap-3 px-5 py-2.5">
+                    <span className="truncate text-primary">{d.deal_title}</span>
+                    <span className="tabular shrink-0 text-xs text-muted">
+                      {d.claimed_count + d.reserved_claims} of {d.max_claims} claimed
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-verified">All active SKUs above threshold.</p>
+              <p className="p-5 text-sm text-muted">No deals running.</p>
             )}
-          </HudCard>
-        ) : null}
-
-        {can(admin, 'deals') ? (
-          <HudCard innerClassName="p-5">
-            <span className="hud-eyebrow">Flash deals</span>
-            <ul className="mt-4 flex flex-col gap-1.5 text-sm">
-              {deals.map((d) => (
-                <li key={d.id} className="flex justify-between gap-3">
-                  <span className="truncate text-secondary">{d.deal_title}</span>
-                  <span className="tabular font-mono text-xs">
-                    {d.claimed_count}+{d.reserved_claims}/{d.max_claims}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </HudCard>
+          </AdminPanel>
         ) : null}
 
         {can(admin, 'audit') ? (
-          <HudCard innerClassName="p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="hud-eyebrow">Recent audit</span>
-              <Link href="/admin/audit" className="hud-label hover:text-volt">
-                Ledger →
+          <AdminPanel
+            title="Recent activity"
+            flush
+            action={
+              <Link href="/admin/audit" className="text-sm text-volt hover:underline">
+                Full log
               </Link>
-            </div>
-            <ul className="flex flex-col gap-1.5 font-mono text-[0.68rem]">
+            }
+          >
+            <ul className="divide-y divide-hairline text-sm">
               {audit.map((a) => (
-                <li key={a.id} className="flex justify-between gap-3">
+                <li key={a.id} className="flex items-center justify-between gap-3 px-5 py-2.5">
                   <span className="truncate">
-                    <span className="text-tungsten">{a.action_type}</span> · {a.admin_codename ?? a.admin_id.slice(0, 8)}
+                    <span className="text-primary">{auditLabel(a.action_type)}</span>
+                    <span className="text-muted"> · {a.admin_codename ?? a.admin_id.slice(0, 8)}</span>
                   </span>
-                  <span className="shrink-0 text-muted">{formatDateTime(a.executed_at)}</span>
+                  <span className="shrink-0 text-xs text-muted">{formatDateTime(a.executed_at)}</span>
                 </li>
               ))}
             </ul>
-          </HudCard>
+          </AdminPanel>
         ) : null}
       </div>
     </AdminShell>

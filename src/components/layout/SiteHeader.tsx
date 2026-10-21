@@ -1,23 +1,24 @@
 import Link from 'next/link';
 import { CartButton } from './CartButton';
-import { VortexMark } from './Logo';
+import { Wordmark } from './Logo';
 import { MobileNav, NavLinks } from './NavLinks';
 import { SearchButton } from '@/components/search/SearchPalette';
+import { PackageIcon } from '@/components/ui/Icons';
 
 export function SiteHeader() {
   return (
     <header className="site-header hud-glass-panel">
-      <div className="container-hud flex h-full items-center justify-between gap-6">
-        <Link href="/" className="flex items-center gap-3" aria-label="Vortex Labs home">
-          <VortexMark />
-          <span className="flex flex-col leading-none">
-            <span className="font-display text-lg font-bold tracking-[0.08em]">VORTEX LABS</span>
-            <span className="font-mono text-[0.55rem] tracking-[0.3em] text-muted">CUSTOM RIG FOUNDRY</span>
-          </span>
+      <div className="container-hud flex h-full items-center gap-6">
+        <Link href="/" aria-label="Vortex Labs home" className="shrink-0">
+          <Wordmark />
         </Link>
         <NavLinks />
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5">
           <SearchButton />
+          <Link href="/telemetry" className="hidden h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium text-secondary hover:bg-chassis hover:text-primary md:flex">
+            <PackageIcon size={18} />
+            Track order
+          </Link>
           <CartButton />
           <MobileNav />
         </div>

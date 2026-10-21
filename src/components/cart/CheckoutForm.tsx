@@ -26,12 +26,12 @@ export function CheckoutForm() {
   if (!cart.lines.length || !cart.lease) {
     return (
       <HudCard innerClassName="flex flex-col items-start gap-4 p-10">
-        <span className="hud-label">{cart.lines.length ? 'LEASE_EXPIRED' : 'MANIFEST_EMPTY'}</span>
+        <span className="text-lg font-semibold">{cart.lines.length ? 'Your reservation expired' : 'Your cart is empty'}</span>
         <p className="text-secondary">
-          {cart.lines.length ? 'Your inventory lock is not active. Return to the manifest and re-lock to freeze stock and pricing.' : 'There is nothing to check out.'}
+          {cart.lines.length ? 'We held your items for 10 minutes. Go back to your cart to reserve them again.' : 'Add something to your cart first.'}
         </p>
-        <Link href={cart.lines.length ? '/cart' : '/forge'} className="btn-overclock">
-          {cart.lines.length ? 'Return to Manifest' : 'Open Rig Forge'}
+        <Link href={cart.lines.length ? '/cart' : '/catalog'} className="btn-overclock">
+          {cart.lines.length ? 'Back to cart' : 'Shop parts'}
         </Link>
       </HudCard>
     );
@@ -71,15 +71,15 @@ export function CheckoutForm() {
         | { ok: false; error: string; detail?: string; issues?: { code: string; title: string; remediation: string }[] };
       if (!data.ok) {
         playClick('error');
-        setError({ title: data.error.replace(/_/g, ' '), detail: data.detail, issues: data.issues });
+        setError({ title: data.error === 'RESERVATION_EXPIRED' ? 'Your reservation expired' : 'We couldn’t place your order', detail: data.detail, issues: data.issues });
         if (data.error === 'RESERVATION_EXPIRED') cart.setLease(null);
         return;
       }
       cart.clear();
-      push({ title: `Order ${data.order.order_number} confirmed`, body: 'Telemetry feed is live.' });
+      push({ title: `Order ${data.order.order_number} confirmed`, body: 'You can track it from your order page.' });
       router.push(`/telemetry/${data.order.order_number}?welcome=1`);
     } catch {
-      setError({ title: 'Network fault', detail: 'The order was not placed. Retry.' });
+      setError({ title: 'Connection problem', detail: 'Your order was not placed. Please try again.' });
     } finally {
       setSubmitting(false);
     }
@@ -89,45 +89,45 @@ export function CheckoutForm() {
   return (
     <form onSubmit={onSubmit} className="grid gap-8 lg:grid-cols-[1fr_400px]">
       <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border border-volt/40 bg-volt/5 px-4 py-3">
-          <span className="font-mono text-xs tracking-[0.12em] text-volt uppercase">Inventory locked · prices frozen</span>
-          <span className="flex items-center gap-2 font-mono text-xs text-secondary">
-            Lease expires in <Countdown to={cart.lease.expiresAt} className="text-lg text-volt" />
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#eff6ff] px-4 py-3">
+          <span className="text-sm font-medium text-volt">Your items and prices are reserved</span>
+          <span className="flex items-center gap-2 text-sm text-secondary">
+            Time left <Countdown to={cart.lease.expiresAt} className="font-semibold text-volt" />
           </span>
         </div>
 
-        <fieldset className="hud-panel grid gap-4 p-5 sm:grid-cols-2">
-          <legend className="hud-eyebrow px-2">01 · Operator</legend>
+        <fieldset className="rounded-xl border border-hairline bg-white grid gap-4 p-5 sm:grid-cols-2">
+          <legend className="px-1 text-base font-semibold text-primary">Contact</legend>
           <label className="flex flex-col gap-1.5 sm:col-span-2">
-            <span className="hud-label">Full name</span>
+            <span className="text-sm font-medium text-secondary">Full name</span>
             <input name="full_name" className="hud-input" required minLength={2} maxLength={160} autoComplete="name" />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="hud-label">Email</span>
+            <span className="text-sm font-medium text-secondary">Email</span>
             <input name="email" type="email" className="hud-input" required maxLength={255} autoComplete="email" />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="hud-label">Phone</span>
+            <span className="text-sm font-medium text-secondary">Phone</span>
             <input name="phone" type="tel" className="hud-input" required minLength={7} maxLength={32} autoComplete="tel" />
           </label>
         </fieldset>
 
-        <fieldset className="hud-panel grid gap-4 p-5 sm:grid-cols-6">
-          <legend className="hud-eyebrow px-2">02 · Drop Coordinates (US only)</legend>
+        <fieldset className="rounded-xl border border-hairline bg-white grid gap-4 p-5 sm:grid-cols-6">
+          <legend className="px-1 text-base font-semibold text-primary">Shipping address (US only)</legend>
           <label className="flex flex-col gap-1.5 sm:col-span-6">
-            <span className="hud-label">Street address</span>
+            <span className="text-sm font-medium text-secondary">Street address</span>
             <input name="line1" className="hud-input" required minLength={3} maxLength={200} autoComplete="address-line1" />
           </label>
           <label className="flex flex-col gap-1.5 sm:col-span-6">
-            <span className="hud-label">Apt / Suite (optional)</span>
+            <span className="text-sm font-medium text-secondary">Apt / Suite (optional)</span>
             <input name="line2" className="hud-input" maxLength={200} autoComplete="address-line2" />
           </label>
           <label className="flex flex-col gap-1.5 sm:col-span-3">
-            <span className="hud-label">City</span>
+            <span className="text-sm font-medium text-secondary">City</span>
             <input name="city" className="hud-input" required minLength={2} maxLength={100} autoComplete="address-level2" />
           </label>
           <label className="flex flex-col gap-1.5 sm:col-span-1">
-            <span className="hud-label">State</span>
+            <span className="text-sm font-medium text-secondary">State</span>
             <select name="region" className="hud-select" required defaultValue="TX" autoComplete="address-level1">
               {US_STATES.map((s) => (
                 <option key={s}>{s}</option>
@@ -135,35 +135,34 @@ export function CheckoutForm() {
             </select>
           </label>
           <label className="flex flex-col gap-1.5 sm:col-span-2">
-            <span className="hud-label">ZIP</span>
+            <span className="text-sm font-medium text-secondary">ZIP</span>
             <input name="postal_code" className="hud-input" required pattern="\d{5}(-\d{4})?" inputMode="numeric" autoComplete="postal-code" />
           </label>
         </fieldset>
 
-        <fieldset className="hud-panel flex flex-col gap-3 p-5">
-          <legend className="hud-eyebrow px-2">03 · Settlement</legend>
+        <fieldset className="rounded-xl border border-hairline bg-white flex flex-col gap-3 p-5">
+          <legend className="px-1 text-base font-semibold text-primary">Payment</legend>
           <p className="text-sm text-secondary">
-            Orders are confirmed instantly and held in the Build Bay queue. Our order desk issues a secure payment link to your email; {isPro ? 'Foundry assembly' : 'dispatch'} begins once
-            settlement clears. Questions: <a className="text-cryo hover:underline" href={`mailto:${COMPANY.contacts.support.email}`}>{COMPANY.contacts.support.email}</a>.
+            Your order is confirmed right away. We&rsquo;ll email you a secure payment link, and {isPro ? 'assembly' : 'shipping'} starts once payment clears. Questions: <a className="text-volt hover:underline" href={`mailto:${COMPANY.contacts.support.email}`}>{COMPANY.contacts.support.email}</a>.
           </p>
-          <label className="flex items-start gap-2 text-xs text-secondary">
+          <label className="flex items-start gap-2.5 text-sm text-secondary">
             <input type="checkbox" className="hud-check mt-0.5" required />
-            <span>I confirm the hardware manifest and shipping coordinates are correct and agree to the Vortex Labs terms of sale and RMA policy.</span>
+            <span>I confirm my order and address are correct and agree to the Vortex Labs terms of sale and returns policy.</span>
           </label>
         </fieldset>
 
         {error ? (
-          <div role="alert" className="border-l-2 border-conflict bg-conflict/5 px-4 py-3">
-            <p className="font-mono text-xs tracking-[0.12em] text-conflict uppercase">{error.title}</p>
+          <div role="alert" className="rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3">
+            <p className="text-sm font-semibold text-conflict">{error.title}</p>
             {error.detail ? <p className="mt-1 text-sm text-secondary">{error.detail}</p> : null}
             {error.issues?.map((i) => (
               <p key={i.code} className="mt-1 text-xs text-secondary">
-                <span className="font-mono text-conflict">{i.code}</span> {i.title} — {i.remediation}
+                {i.title} — {i.remediation}
               </p>
             ))}
-            {error.title === 'RESERVATION EXPIRED' ? (
+            {error.title === 'Your reservation expired' ? (
               <Link href="/cart" className="btn-ghost size-sm mt-3">
-                Re-lock cart
+                Back to cart
               </Link>
             ) : null}
           </div>
@@ -173,10 +172,10 @@ export function CheckoutForm() {
       <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(var(--header-h)+20px)] lg:self-start">
         <HudCard innerClassName="flex flex-col gap-4 p-5">
           <div className="flex items-center justify-between">
-            <span className="hud-eyebrow">{isPro ? 'Mode B · Pro-Built' : 'Mode A · DIY Kit'}</span>
+            <span className="text-lg font-semibold">{isPro ? 'Built by us' : 'Parts only'}</span>
             {cart.report ? <TierBadge tier={cart.report.overallConfidence} compact /> : null}
           </div>
-          <ul className="flex max-h-60 flex-col gap-1.5 overflow-y-auto border-b border-hairline pb-3 text-xs">
+          <ul className="flex max-h-60 flex-col gap-2 overflow-y-auto border-b border-hairline pb-3 text-sm">
             {cart.lines.map((l) => {
               const locked = cart.lease?.lockedPrices[`${l.productId}:${l.flashDealId ?? ''}`] ?? l.unitPriceCents;
               return (
@@ -190,9 +189,9 @@ export function CheckoutForm() {
             })}
           </ul>
           <QuoteLines quote={cart.quote} />
-          <p className="font-mono text-[0.65rem] text-muted">Est. dispatch {estimateDispatchDate(cart.mode)} · Austin US-CENTRAL hub</p>
+          <p className="text-xs text-muted">Estimated ship date: {estimateDispatchDate(cart.mode)}</p>
           <button type="submit" className="btn-overclock w-full" disabled={submitting}>
-            {submitting ? 'Committing order…' : `Commit Order · ${money(cart.quote.totalCents)}`}
+            {submitting ? 'Placing order…' : `Place order · ${money(cart.quote.totalCents)}`}
           </button>
         </HudCard>
       </aside>

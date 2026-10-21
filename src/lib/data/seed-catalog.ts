@@ -1,3 +1,4 @@
+import { CATEGORY_IMAGE } from '@/lib/format';
 import type { PartCategory, Product, ProductSpecs } from '@/lib/types';
 import { stableUuid } from './stable-id';
 
@@ -9,21 +10,6 @@ import { stableUuid } from './stable-id';
  * real data from the first boot.
  */
 
-const CATEGORY_IMAGE: Record<PartCategory, string> = {
-  CPU: '/media/cat-cpu.webp',
-  CPU_COOLER: '/media/cat-cooler.webp',
-  MOTHERBOARD: '/media/cat-motherboard.webp',
-  RAM: '/media/cat-ram.webp',
-  STORAGE: '/media/cat-storage.webp',
-  GPU: '/media/cat-gpu.webp',
-  CASE: '/media/cat-case.webp',
-  PSU: '/media/cat-psu.webp',
-  CASE_FAN: '/media/cat-fan.svg',
-  OS: '/media/cat-os.svg',
-  MONITOR: '/media/cat-monitor.svg',
-  PERIPHERAL: '/media/cat-peripheral.svg',
-  INTERNAL_BRACE: '/media/cat-brace.svg'
-};
 
 interface SeedInput {
   sku: string;

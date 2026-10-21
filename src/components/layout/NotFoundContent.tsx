@@ -2,26 +2,18 @@ import Link from 'next/link';
 
 export function NotFoundContent() {
   return (
-    <div className="container-hud flex min-h-[70vh] flex-col items-start justify-center gap-6 py-24">
-      <span className="hud-eyebrow">ERR_404 // ROUTE_NOT_FOUND</span>
-      <h1 className="hud-title glitch text-6xl md:text-8xl">
-        Signal <span className="text-tungsten">Lost</span>
-      </h1>
-      <p className="max-w-lg text-secondary">The coordinates you requested don&apos;t resolve to any bay in the foundry. The part may have been retired, or the link was mistyped.</p>
-      <div className="flex flex-wrap gap-3">
+    <div className="container-hud flex min-h-[60vh] flex-col items-center justify-center gap-5 py-24 text-center">
+      <p className="text-sm font-semibold text-volt">404</p>
+      <h1 className="hud-title text-3xl md:text-4xl">We can&rsquo;t find that page</h1>
+      <p className="max-w-md text-secondary">The page may have moved, or the link may be mistyped. Try searching or head back to the shop.</p>
+      <div className="flex flex-wrap justify-center gap-3">
         <Link href="/" className="btn-overclock">
-          Return to Base
+          Go to homepage
         </Link>
         <Link href="/catalog" className="btn-ghost">
-          Browse Catalog
+          Shop all parts
         </Link>
       </div>
-      <pre className="mt-6 font-mono text-[0.65rem] leading-relaxed text-muted" aria-hidden>
-        {`> trace --route
-  hop 01  edge.vortexlabs.gg     OK
-  hop 02  foundry.austin.tx      OK
-  hop 03  ????????               TIMEOUT`}
-      </pre>
     </div>
   );
 }

@@ -6,7 +6,7 @@ export function QuoteLines({ quote, showReasons = false }: { quote: OrderQuote; 
   return (
     <dl className="flex flex-col gap-2 text-sm">
       <div className="flex justify-between gap-4">
-        <dt className="text-secondary">Components</dt>
+        <dt className="text-secondary">Subtotal</dt>
         <dd className="tabular">{money(quote.partsSubtotalCents)}</dd>
       </div>
       {quote.services.map((s) => {
@@ -15,15 +15,15 @@ export function QuoteLines({ quote, showReasons = false }: { quote: OrderQuote; 
           <div key={s.code} className="flex justify-between gap-4">
             <dt className="text-secondary">
               {s.name}
-              {showReasons ? <span className="block font-mono text-[0.6rem] text-muted">{s.reason}</span> : null}
+              {showReasons ? <span className="block text-xs text-muted">{s.reason}</span> : null}
             </dt>
-            <dd className={`tabular shrink-0 ${s.price_cents === 0 ? 'text-volt' : ''}`}>
+            <dd className={`tabular shrink-0 ${s.price_cents === 0 ? 'text-verified' : ''}`}>
               {waived ? (
                 <>
-                  <span className="mr-1.5 text-muted line-through">$149</span>WAIVED
+                  <span className="mr-1.5 text-muted line-through">$149</span>Free
                 </>
               ) : s.price_cents === 0 ? (
-                'INCLUDED'
+                'Included'
               ) : (
                 money(s.price_cents)
               )}
@@ -32,12 +32,12 @@ export function QuoteLines({ quote, showReasons = false }: { quote: OrderQuote; 
         );
       })}
       <div className="flex justify-between gap-4">
-        <dt className="text-secondary">Insured freight</dt>
-        <dd className="tabular text-volt">FREE</dd>
+        <dt className="text-secondary">Shipping</dt>
+        <dd className="tabular text-verified">Free</dd>
       </div>
       <div className="mt-2 flex items-baseline justify-between border-t border-hairline pt-3">
-        <dt className="font-display text-base font-semibold uppercase">Total</dt>
-        <dd className="tabular text-2xl font-bold text-volt">{money(quote.totalCents)}</dd>
+        <dt className="text-base font-semibold">Total</dt>
+        <dd className="tabular text-2xl font-bold text-primary">{money(quote.totalCents)}</dd>
       </div>
     </dl>
   );

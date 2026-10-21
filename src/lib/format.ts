@@ -8,18 +8,18 @@ export const money0 = (cents: number) => usd0.format(Math.round(cents / 100));
 
 export const CATEGORY_LABEL: Record<PartCategory, string> = {
   CPU: 'Processors',
-  CPU_COOLER: 'CPU Cooling',
+  CPU_COOLER: 'CPU Coolers',
   MOTHERBOARD: 'Motherboards',
   RAM: 'Memory',
   STORAGE: 'Storage',
   GPU: 'Graphics Cards',
-  CASE: 'Chassis',
+  CASE: 'PC Cases',
   PSU: 'Power Supplies',
   CASE_FAN: 'Case Fans',
   OS: 'Operating Systems',
   MONITOR: 'Monitors',
   PERIPHERAL: 'Peripherals',
-  INTERNAL_BRACE: 'Logistics'
+  INTERNAL_BRACE: 'Accessories'
 };
 
 export const CATEGORY_CODE: Record<PartCategory, string> = {
@@ -59,14 +59,14 @@ export const SLUG_CATEGORY = Object.fromEntries(Object.entries(CATEGORY_SLUG).ma
 export const PUBLIC_CATEGORIES = Object.keys(CATEGORY_SLUG) as Exclude<PartCategory, 'INTERNAL_BRACE'>[];
 
 export const STAGE_SHORT: Record<BuildBayStage, string> = {
-  ORDER_CONFIRMED: 'CONFIRMED',
-  PARTS_ALLOCATED_BIN_LOCKED: 'BIN LOCKED',
-  BENCH_ASSEMBLY_IN_PROGRESS: 'ASSEMBLY',
-  BIOS_FLASH_AND_EXPO_TUNING: 'BIOS / EXPO',
-  OCCT_THERMAL_BURN_IN_4HR: 'BURN-IN',
-  INSTAPAK_FOAM_CRATING: 'CRATING',
-  DISPATCHED_CARRIER: 'DISPATCHED',
-  DELIVERED: 'DELIVERED'
+  ORDER_CONFIRMED: 'Confirmed',
+  PARTS_ALLOCATED_BIN_LOCKED: 'Parts reserved',
+  BENCH_ASSEMBLY_IN_PROGRESS: 'Assembly',
+  BIOS_FLASH_AND_EXPO_TUNING: 'BIOS setup',
+  OCCT_THERMAL_BURN_IN_4HR: 'Stress test',
+  INSTAPAK_FOAM_CRATING: 'Packing',
+  DISPATCHED_CARRIER: 'Shipped',
+  DELIVERED: 'Delivered'
 };
 
 export function maskEmail(email: string): string {
@@ -188,4 +188,29 @@ export function specValue(key: string, value: unknown): string {
     return value.toLocaleString();
   }
   return String(value);
+}
+
+/** Stock category photo used until an admin uploads real product photos. */
+export const CATEGORY_IMAGE: Record<PartCategory, string> = {
+  CPU: '/media/cat-cpu.webp',
+  CPU_COOLER: '/media/cat-cooler.webp',
+  MOTHERBOARD: '/media/cat-motherboard.webp',
+  RAM: '/media/cat-ram.webp',
+  STORAGE: '/media/cat-storage.webp',
+  GPU: '/media/cat-gpu.webp',
+  CASE: '/media/cat-case.webp',
+  PSU: '/media/cat-psu.webp',
+  CASE_FAN: '/media/cat-fan.webp',
+  OS: '/media/cat-os.webp',
+  MONITOR: '/media/cat-monitor.webp',
+  PERIPHERAL: '/media/cat-peripheral.webp',
+  INTERNAL_BRACE: '/media/cat-brace.webp'
+};
+
+export const isPlaceholderImage = (url: string | null | undefined) => !url || url.startsWith('/media/cat-');
+
+/** The admin-managed photo list: main photo first, placeholders excluded. */
+export function productPhotos(p: { primary_image_url: string; gallery_urls?: string[] | null }): string[] {
+  const all = [p.primary_image_url, ...(p.gallery_urls ?? [])].filter((u) => !isPlaceholderImage(u));
+  return [...new Set(all)];
 }

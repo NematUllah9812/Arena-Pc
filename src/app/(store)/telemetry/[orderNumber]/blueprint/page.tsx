@@ -8,7 +8,7 @@ import { ThermalCurve } from '@/components/telemetry/ThermalCurve';
 import { PrintButton } from './PrintButton';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: 'System Blueprint', robots: { index: false } };
+export const metadata: Metadata = { title: 'Order summary', robots: { index: false } };
 
 export default async function BlueprintPage({ params }: { params: Promise<{ orderNumber: string }> }) {
   const { orderNumber } = await params;
@@ -23,36 +23,36 @@ export default async function BlueprintPage({ params }: { params: Promise<{ orde
     <div className="container-hud max-w-4xl py-10 print:max-w-none print:py-0">
       <div className="mb-6 flex items-center justify-between print:hidden">
         <a href={`/telemetry/${v.order_number}`} className="hud-label hover:text-volt">
-          ← Back to telemetry
+          ‹ Back to order
         </a>
         <PrintButton />
       </div>
       <article className="blueprint hud-panel p-8 print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-6 border-b border-hairline pb-6">
           <div>
-            <p className="font-mono text-xs tracking-[0.2em] text-volt">{COMPANY.fullBrand}</p>
-            <h1 className="hud-title mt-2 text-3xl">System Blueprint</h1>
-            <p className="tabular mt-1 font-mono text-sm">{v.order_number}</p>
+            <p className="text-sm font-semibold text-volt">{COMPANY.fullBrand}</p>
+            <h1 className="hud-title mt-2 text-3xl">Build summary</h1>
+            <p className="tabular mt-1 text-sm">{v.order_number}</p>
           </div>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-1 font-mono text-xs">
-            <dt className="text-muted">Issued</dt>
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+            <dt className="text-muted">Date</dt>
             <dd>{formatDate(v.created_at)}</dd>
-            <dt className="text-muted">Mode</dt>
-            <dd>{v.fulfillment_type === 'PRO_BUILT_FOUNDRY_RIG' ? 'Pro-Built Foundry Rig' : 'DIY Component Kit'}</dd>
+            <dt className="text-muted">Order type</dt>
+            <dd>{v.fulfillment_type === 'PRO_BUILT_FOUNDRY_RIG' ? 'Built by us' : 'Parts only'}</dd>
             <dt className="text-muted">Technician</dt>
             <dd>{v.assigned_technician_code ?? '—'}</dd>
-            <dt className="text-muted">Confidence</dt>
-            <dd>{v.compatibility_confidence.replace('_', ' ')}</dd>
+            <dt className="text-muted">Compatibility</dt>
+            <dd>{v.compatibility_confidence === 'VERIFIED_FIT' ? 'Verified fit' : v.compatibility_confidence === 'TIGHT_TOLERANCE' ? 'Tight fit (checked by hand)' : 'Needs review'}</dd>
           </dl>
         </header>
 
         <section className="py-6">
-          <h2 className="hud-eyebrow mb-3">Bill of Materials</h2>
+          <h2 className="hud-eyebrow mb-3">Parts list</h2>
           <table className="spec-table">
             <thead>
               <tr>
-                <th>Slot</th>
-                <th>Component</th>
+                <th>Part</th>
+                <th>Name</th>
                 <th>SKU</th>
                 <th>Serial</th>
                 <th className="text-right">Qty</th>
@@ -75,43 +75,43 @@ export default async function BlueprintPage({ params }: { params: Promise<{ orde
         <section className="grid gap-6 border-t border-hairline py-6 md:grid-cols-3">
           <div>
             <h2 className="hud-eyebrow mb-2">Power</h2>
-            <p className="tabular font-mono text-sm">Base {c?.estimated_base_wattage ?? '—'} W</p>
-            <p className="tabular font-mono text-sm">Peak transient {c?.estimated_peak_transient_wattage ?? '—'} W</p>
-            <p className="tabular font-mono text-sm">PSU target {c?.recommended_psu_wattage ?? '—'} W</p>
+            <p className="tabular text-sm">Typical {c?.estimated_base_wattage ?? '—'} W</p>
+            <p className="tabular text-sm">Peak {c?.estimated_peak_transient_wattage ?? '—'} W</p>
+            <p className="tabular text-sm">Recommended PSU {c?.recommended_psu_wattage ?? '—'} W</p>
           </div>
           <div>
-            <h2 className="hud-eyebrow mb-2">Firmware</h2>
-            <p className="font-mono text-sm">BIOS {bios?.telemetry_metrics.bios_version_flashed ?? 'Factory'}</p>
-            <p className="font-mono text-sm">{bios?.telemetry_metrics.expo_xmp_profile_verified ?? 'Memory profile: JEDEC'}</p>
+            <h2 className="hud-eyebrow mb-2">BIOS & memory</h2>
+            <p className="text-sm">BIOS {bios?.telemetry_metrics.bios_version_flashed ?? 'Factory'}</p>
+            <p className="text-sm">{bios?.telemetry_metrics.expo_xmp_profile_verified ?? 'Memory profile: JEDEC'}</p>
           </div>
           <div>
-            <h2 className="hud-eyebrow mb-2">Burn-In</h2>
+            <h2 className="hud-eyebrow mb-2">Stress test</h2>
             {burn ? (
               <>
-                <p className="tabular font-mono text-sm">CPU peak {burn.telemetry_metrics.peak_occt_cpu_temp_c} °C</p>
-                <p className="tabular font-mono text-sm">GPU peak {burn.telemetry_metrics.peak_furmark_gpu_temp_c} °C</p>
-                <p className="tabular font-mono text-sm">Time Spy {burn.telemetry_metrics.time_spy_score?.toLocaleString()}</p>
+                <p className="tabular text-sm">Max CPU {burn.telemetry_metrics.peak_occt_cpu_temp_c} °C</p>
+                <p className="tabular text-sm">Max GPU {burn.telemetry_metrics.peak_furmark_gpu_temp_c} °C</p>
+                <p className="tabular text-sm">3DMark {burn.telemetry_metrics.time_spy_score?.toLocaleString()}</p>
               </>
             ) : (
-              <p className="font-mono text-sm text-muted">{v.fulfillment_type === 'PRO_BUILT_FOUNDRY_RIG' ? 'Pending' : 'N/A — DIY kit'}</p>
+              <p className="text-sm text-muted">{v.fulfillment_type === 'PRO_BUILT_FOUNDRY_RIG' ? 'Pending' : 'Not included with parts-only orders'}</p>
             )}
           </div>
         </section>
 
         {burn?.telemetry_metrics.thermal_curve?.length ? (
           <section className="border-t border-hairline py-6">
-            <h2 className="hud-eyebrow mb-3">OCCT Thermal Curve</h2>
+            <h2 className="hud-eyebrow mb-3">Temperatures during the test</h2>
             <ThermalCurve points={burn.telemetry_metrics.thermal_curve} height={200} />
           </section>
         ) : null}
 
         {c?.issues.length ? (
           <section className="border-t border-hairline py-6">
-            <h2 className="hud-eyebrow mb-3">Engine Notes</h2>
+            <h2 className="hud-eyebrow mb-3">Compatibility notes</h2>
             <ul className="space-y-1 text-sm">
               {c.issues.map((i) => (
                 <li key={i.code}>
-                  <span className="font-mono text-xs">{i.code}</span> — {i.title}
+                  {i.title}
                 </li>
               ))}
             </ul>
@@ -119,8 +119,8 @@ export default async function BlueprintPage({ params }: { params: Promise<{ orde
         ) : null}
 
         <section className="border-t border-hairline py-6">
-          <h2 className="hud-eyebrow mb-3">Chain of Custody</h2>
-          <ol className="space-y-1 font-mono text-xs">
+          <h2 className="hud-eyebrow mb-3">Order history</h2>
+          <ol className="space-y-1 text-sm">
             {v.logs.map((l) => (
               <li key={l.id}>
                 {formatDateTime(l.logged_at)} · {STAGES[l.stage].label} · {l.technician_code}
@@ -129,12 +129,12 @@ export default async function BlueprintPage({ params }: { params: Promise<{ orde
           </ol>
         </section>
 
-        <footer className="flex flex-wrap justify-between gap-4 border-t border-hairline pt-6 font-mono text-[0.65rem] text-muted">
+        <footer className="flex flex-wrap justify-between gap-4 border-t border-hairline pt-6 text-xs text-muted">
           <span>
             {COMPANY.legalName} · {COMPANY.flagship.street}, {COMPANY.flagship.city}, {COMPANY.flagship.region} {COMPANY.flagship.postalCode}
           </span>
           <span>
-            RMA {COMPANY.contacts.support.email} · {COMPANY.contacts.support.phone} · Total {money(v.total_charged_cents)}
+            Support {COMPANY.contacts.support.email} · {COMPANY.contacts.support.phone} · Total {money(v.total_charged_cents)}
           </span>
         </footer>
       </article>

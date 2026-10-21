@@ -6,23 +6,21 @@ import { PackageCard } from '@/components/product/PackageCard';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
-  title: 'Syndicate Package Rigs',
-  description: 'Foundry-validated turnkey gaming rigs. Every Syndicate Package ships with the $149 Pro-Built assembly, cable routing, BIOS/EXPO tuning and 72-hour stress test included free.'
+  title: 'Prebuilt Gaming PCs',
+  description: 'Ready-made gaming PCs with tested part combinations. Professional assembly and a 4-hour stress test are included free.'
 };
 
 export default async function SyndicatePage() {
   const packages = await getRepo().listPackages();
   return (
-    <div className="container-hud py-10 md:py-14">
-      <header className="mb-10 flex flex-col gap-3">
-        <span className="hud-eyebrow">SYNDICATE PACKAGE OFFERS // FOUNDRY VALIDATED</span>
-        <h1 className="hud-title text-4xl md:text-6xl">Syndicate Rigs</h1>
-        <p className="max-w-2xl text-secondary">
-          Pre-validated bills of materials — every component pair cleared by the compatibility engine at <span className="text-verified">VERIFIED_FIT</span> or flagged tolerance-checked.
-          The {money(FEES.PRO_BUILT_ASSEMBLY_CENTS)} Foundry assembly fee is <span className="text-volt">waived</span>.
+    <div className="container-hud py-10">
+      <header className="mb-8">
+        <h1 className="hud-title text-3xl md:text-4xl">Prebuilt gaming PCs</h1>
+        <p className="mt-2 max-w-2xl text-secondary">
+          Every part combination is tested to work together. Assembly ({money(FEES.PRO_BUILT_ASSEMBLY_CENTS)} value), cable management and a 4-hour stress test are included free.
         </p>
       </header>
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {packages.map((p) => (
           <PackageCard key={p.id} pkg={p} />
         ))}

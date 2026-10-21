@@ -27,12 +27,12 @@ export function HudCard({
   );
 }
 
-export function SectionHeader({ eyebrow, title, children, align = 'left' }: { eyebrow: string; title: ReactNode; children?: ReactNode; align?: 'left' | 'center' }) {
+export function SectionHeader({ eyebrow, title, children, align = 'left' }: { eyebrow?: string; title: ReactNode; children?: ReactNode; align?: 'left' | 'center' }) {
   return (
-    <header className={`mb-8 flex flex-col gap-3 ${align === 'center' ? 'items-center text-center' : ''}`}>
-      <span className="hud-eyebrow">{eyebrow}</span>
-      <h2 className="hud-title glitch text-3xl md:text-5xl">{title}</h2>
-      {children ? <div className="max-w-2xl text-sm leading-relaxed text-secondary">{children}</div> : null}
+    <header className={`mb-6 flex flex-col gap-2 ${align === 'center' ? 'items-center text-center' : ''}`}>
+      {eyebrow ? <span className="hud-eyebrow">{eyebrow}</span> : null}
+      <h2 className="hud-title text-2xl md:text-3xl">{title}</h2>
+      {children ? <div className="max-w-2xl text-[0.95rem] text-secondary">{children}</div> : null}
     </header>
   );
 }
@@ -52,7 +52,7 @@ export function Stat({ label, value, accent }: { label: string; value: ReactNode
   return (
     <div className="flex flex-col gap-1">
       <span className="hud-label">{label}</span>
-      <span className={`tabular text-lg ${accent ? `text-${accent}` : 'text-primary'}`}>{value}</span>
+      <span className={`tabular text-lg font-semibold ${accent ? `text-${accent}` : 'text-primary'}`}>{value}</span>
     </div>
   );
 }

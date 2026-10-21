@@ -84,6 +84,14 @@ export interface InventoryUpdateInput {
   ip: string;
 }
 
+export interface ProductImagesInput {
+  adminId: string;
+  productId: string;
+  /** Ordered photo list; first entry becomes the main photo. Empty = fall back to the category photo. */
+  photos: string[];
+  ip: string;
+}
+
 export interface CreateDealInput {
   adminId: string;
   productId: string;
@@ -152,6 +160,10 @@ export interface Repository {
 
   updateProductPricing(input: PricingUpdateInput): Promise<MutationResult<Product>>;
   updateProductInventory(input: InventoryUpdateInput): Promise<MutationResult<Product>>;
+  /** Product photos: upload bytes (already WebP), persist ordered list, delete a stored object. */
+  storeProductImage(productId: string, bytes: Uint8Array): Promise<string>;
+  deleteProductImage(url: string): Promise<void>;
+  updateProductImages(input: ProductImagesInput): Promise<MutationResult<Product>>;
   createFlashDeal(input: CreateDealInput): Promise<MutationResult<FlashDeal>>;
   setFlashDealActive(adminId: string, dealId: string, active: boolean, ip: string): Promise<MutationResult>;
   issuePriceOverride(approverId: string, productId: string, minPriceCents: number, ip: string): Promise<MutationResult<PriceOverrideApproval>>;

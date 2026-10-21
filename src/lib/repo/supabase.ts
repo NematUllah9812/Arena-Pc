@@ -24,10 +24,12 @@ import type {
   PlaceOrderInput,
   PlaceOrderResult,
   PricingUpdateInput,
+  ProductImagesInput,
   Repository,
   ReserveResult
 } from './types';
 import { filterAndSortProducts, resolvePackage, toPublicProduct } from './shared';
+import { CATEGORY_IMAGE } from '@/lib/format';
 
 /** Every products column except the generated search_vector. */
 const PRODUCT_COLUMNS =
@@ -37,6 +39,7 @@ const PRODUCT_COLUMNS =
   'model_3d_glb_url,specs,description,created_at,updated_at';
 
 const PROOF_BUCKET = 'build-bay-proofs';
+const MEDIA_BUCKET = 'product-media';
 
 function normalizeProduct(row: Record<string, unknown>): Product {
   const p = row as unknown as Product;
@@ -365,6 +368,44 @@ export class SupabaseRepository implements Repository {
     if (error) return { ok: false, error: error.message };
     const res = data as { ok: boolean; product?: Record<string, unknown>; error?: string };
     return res.ok ? { ok: true, value: normalizeProduct(res.product!) } : { ok: false, error: res.error ?? 'UNKNOWN' };
+  }
+
+  async storeProductImage(productId: string, bytes: Uint8Array) {
+    const path = `${productId}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.webp`;
+    const { error } = await this.db.storage.from(MEDIA_BUCKET).upload(path, bytes, { contentType: 'image/webp', upsert: false, cacheControl: '31536000' });
+    if (error) throw new Error(`MEDIA_UPLOAD_FAILED: ${error.message}`);
+    return this.db.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+
+  async deleteProductImage(url: string) {
+    const marker = `/storage/v1/object/public/${MEDIA_BUCKET}/`;
+    const i = url.indexOf(marker);
+    if (i < 0) return;
+    await this.db.storage.from(MEDIA_BUCKET).remove([decodeURIComponent(url.slice(i + marker.length))]);
+  }
+
+  async updateProductImages(input: ProductImagesInput): Promise<MutationResult<Product>> {
+    const prev = await this.getProductInternal(input.productId);
+    if (!prev) return { ok: false, error: 'PRODUCT_NOT_FOUND' };
+    const primary = input.photos[0] ?? CATEGORY_IMAGE[prev.category];
+    const gallery = input.photos.slice(1);
+    const { data, error } = await this.db
+      .from('products')
+      .update({ primary_image_url: primary, gallery_urls: gallery, updated_at: new Date().toISOString() })
+      .eq('id', input.productId)
+      .select(PRODUCT_COLUMNS)
+      .single();
+    if (error) return { ok: false, error: error.message };
+    await this.writeAudit({
+      admin_id: input.adminId,
+      action_type: 'PRODUCT_PHOTOS_UPDATE',
+      target_entity: 'products',
+      target_id: prev.sku,
+      previous_state: { primary_image_url: prev.primary_image_url, gallery_urls: prev.gallery_urls },
+      new_state: { primary_image_url: primary, gallery_urls: gallery },
+      ip_address: input.ip
+    });
+    return { ok: true, value: normalizeProduct(data as unknown as Record<string, unknown>) };
   }
 
   async createFlashDeal(input: CreateDealInput): Promise<MutationResult<FlashDeal>> {

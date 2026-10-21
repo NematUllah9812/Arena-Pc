@@ -20,5 +20,5 @@ export default async function CategoryPage({ params, searchParams }: { params: P
   if (!cat) notFound();
   const repo = getRepo();
   const [products, facets] = await Promise.all([repo.listProducts(parseCatalogQuery(sp, cat)), repo.getFacets()]);
-  return <CatalogView products={products} facets={facets} category={cat} title={CATEGORY_LABEL[cat]} eyebrow={`CATALOG // ${cat}`} page={Number(sp.page) || 1} searchParams={sp} />;
+  return <CatalogView products={products} facets={facets} category={cat} title={CATEGORY_LABEL[cat]} eyebrow={CATEGORY_LABEL[cat]} page={Number(sp.page) || 1} searchParams={sp} />;
 }

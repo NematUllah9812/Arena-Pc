@@ -1,32 +1,22 @@
 import Link from 'next/link';
-import { getRepo } from '@/lib/repo';
-import { money } from '@/lib/format';
+import { COMPANY, FEES } from '@/lib/config/company';
 
-export async function DealTicker() {
-  let deals: Awaited<ReturnType<ReturnType<typeof getRepo>['listFlashDeals']>> = [];
-  try {
-    deals = await getRepo().listFlashDeals();
-  } catch {
-    deals = [];
-  }
-  if (!deals.length) return null;
-  const items = deals.map((d) => (
-    <Link key={d.id} href="/deals" className="inline-flex items-center gap-3 font-mono text-[0.68rem] tracking-[0.12em] uppercase">
-      <span className="badge badge-tungsten badge-solid">FLASH</span>
-      <span className="text-primary">{d.deal_title}</span>
-      <span className="text-tungsten tabular">{money(d.deal_price_cents)}</span>
-      <span className="text-muted tabular">
-        {d.max_claims - d.claimed_count - d.reserved_claims}/{d.max_claims} UNCLAIMED
-      </span>
-    </Link>
-  ));
+/** Slim, static announcement bar (replaces the old scrolling ticker). */
+export function DealTicker() {
   return (
-    <div className="ticker" aria-label="Live flash deals">
-      <div className="ticker-track anim-continuous">
-        {items}
-        <span aria-hidden className="contents">
-          {items}
-        </span>
+    <div className="border-b border-hairline bg-chassis text-[0.8125rem] text-secondary">
+      <div className="container-hud flex h-9 items-center justify-between gap-4">
+        <p className="truncate">
+          Free insured shipping on every order · Parts ship same day when ordered before {FEES.DIY_SAME_DAY_CUTOFF_HOUR - 12} PM CST
+        </p>
+        <div className="hidden shrink-0 items-center gap-5 md:flex">
+          <Link href="/deals" className="font-medium text-tungsten hover:underline">
+            Today&rsquo;s deals
+          </Link>
+          <a href={`tel:${COMPANY.contacts.support.tel}`} className="hover:text-primary">
+            {COMPANY.contacts.support.phone}
+          </a>
+        </div>
       </div>
     </div>
   );

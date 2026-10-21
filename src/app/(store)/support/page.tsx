@@ -2,36 +2,36 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { COMPANY, FEES } from '@/lib/config/company';
 import { money } from '@/lib/format';
-import { HudCard, SectionHeader } from '@/components/hud/HudCard';
+import { SectionHeader } from '@/components/hud/HudCard';
 
 export const metadata: Metadata = {
-  title: 'Support, RMA & Foundry Contact',
+  title: 'Help & support',
   description: `Technical support, RMA and B2B contact for ${COMPANY.legalName} — ${COMPANY.flagship.street}, ${COMPANY.flagship.city}, ${COMPANY.flagship.region}.`
 };
 
 const FAQ: [string, string][] = [
   [
-    'What does the Compatibility Engine actually check?',
-    'Socket and chipset, DDR generation, minimum BIOS revision vs. the board’s shipped BIOS (and whether it has a flashback button), GPU length and radiator thickness vs. chassis clearance, air-cooler overhang vs. RAM heatspreader height, and PSU wattage vs. estimated GPU/CPU transient spikes.'
+    'What does the compatibility check look at?',
+    'That the processor fits the motherboard socket, the memory type matches, the motherboard BIOS supports your processor, the graphics card and radiator fit inside the case, the CPU cooler clears the memory, and the power supply can handle peak power draw.'
   ],
   [
-    'What is a TIGHT_TOLERANCE build?',
-    'A build that fits within 0–3 mm on some axis, or uses a known-good edge case. It is allowed, but a Foundry technician performs a manual fit verification at the bench before closing the panel.'
+    'What does “tight fit” mean?',
+    'Some parts fit with only 0–3 mm to spare. The build is allowed, and if we assemble it, a technician checks the fit by hand before closing the case.'
   ],
   [
-    'When does a DIY kit ship the same day?',
-    `Orders placed Monday–Saturday before 16:00 CST dispatch the same day from the nearest hub. If you add the ${money(FEES.DIY_BIOS_PREFLASH_CENTS)} BIOS pre-flash, the board is flashed and socket pins inspected before it leaves.`
+    'When do parts-only orders ship?',
+    `Orders placed Monday–Saturday before 4 PM CST ship the same day from the nearest warehouse. If you add the ${money(FEES.DIY_BIOS_PREFLASH_CENTS)} BIOS update, we update the motherboard and inspect it before it leaves.`
   ],
   [
-    'Why was a $15 BIOS flash added automatically?',
-    'Your CPU needs a newer BIOS than the motherboard ships with, and that board has no USB BIOS Flashback button — it would not POST out of the box. We flash it before dispatch so it boots first time.'
+    `Why was a ${money(FEES.DIY_BIOS_PREFLASH_CENTS)} BIOS update added automatically?`,
+    'Your processor needs a newer BIOS than the motherboard ships with, and that board can’t update itself without a working processor. We update it before shipping so your PC starts the first time.'
   ],
   [
-    'What is the Instapak foam brace?',
-    `Any GPU heavier than ${FEES.GPU_FOAM_BRACE_THRESHOLD_GRAMS.toLocaleString()} g gets an Instapak Quick RT expanding-foam brace molded around it inside the chassis, so the PCIe slot never carries the card’s mass in transit. It is included free on Pro-Built rigs.`
+    'How do you protect heavy graphics cards in shipping?',
+    `Any graphics card heavier than ${FEES.GPU_FOAM_BRACE_THRESHOLD_GRAMS.toLocaleString()} g gets expanding protective foam around it inside the case, so the card’s weight isn’t on the slot during transit. It’s free on PCs we build.`
   ],
-  ['How long is my inventory held at checkout?', `Locking your cart reserves every unit for ${FEES.RESERVATION_TTL_MINUTES} minutes with row-level database locks and freezes your price, including flash-deal pricing.`],
-  ['How do I start an RMA?', `Email ${COMPANY.contacts.support.email} with your VL-ORD order number and a short fault description. Pro-Built rigs include the System Blueprint and burn-in data, which speeds up diagnosis.`]
+  ['How long are items held at checkout?', `When you start checkout we reserve your items for ${FEES.RESERVATION_TTL_MINUTES} minutes and lock in your prices, including deal prices.`],
+  ['How do I return or repair something?', `Email ${COMPANY.contacts.support.email} with your order number (VL-ORD-…) and a short description of the problem. PCs we build include a build summary and test results, which helps us sort it out faster.`]
 ];
 
 export default function SupportPage() {
@@ -48,27 +48,27 @@ export default function SupportPage() {
     ]
   };
   return (
-    <div className="container-hud py-10 md:py-14">
+    <div className="container-hud py-10">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
-      <header className="mb-10 flex flex-col gap-3">
-        <span className="hud-eyebrow">SUPPORT // COMMS CHANNEL</span>
-        <h1 className="hud-title text-4xl md:text-6xl">Support &amp; RMA</h1>
+      <header className="mb-8">
+        <h1 className="hud-title text-3xl md:text-4xl">Help &amp; support</h1>
+        <p className="mt-2 text-secondary">We&rsquo;re here {COMPANY.hours.label}.</p>
       </header>
       <div className="grid gap-5 md:grid-cols-3">
         {[COMPANY.contacts.support, COMPANY.contacts.syndicate].map((c) => (
-          <HudCard key={c.email} innerClassName="flex h-full flex-col gap-3 p-6">
-            <span className="hud-eyebrow">{c.label}</span>
-            <a href={`mailto:${c.email}`} className="font-mono text-lg text-volt hover:underline">
+          <div key={c.email} className="hud-card flex h-full flex-col gap-2 p-6">
+            <span className="font-semibold">{c.label}</span>
+            <a href={`mailto:${c.email}`} className="text-volt hover:underline">
               {c.email}
             </a>
-            <a href={`tel:${c.tel}`} className="tabular font-mono text-secondary hover:text-primary">
+            <a href={`tel:${c.tel}`} className="tabular text-secondary hover:text-primary">
               {c.phone}
             </a>
-            <p className="mt-auto font-mono text-xs text-muted">{COMPANY.hours.label}</p>
-          </HudCard>
+            <p className="mt-auto pt-2 text-sm text-muted">{COMPANY.hours.label}</p>
+          </div>
         ))}
-        <HudCard tone="cryo" innerClassName="flex h-full flex-col gap-2 p-6">
-          <span className="hud-eyebrow">{f.label}</span>
+        <div className="hud-card flex h-full flex-col gap-2 p-6">
+          <span className="font-semibold">{f.label}</span>
           <address className="not-italic text-secondary">
             {COMPANY.legalName}
             <br />
@@ -76,27 +76,26 @@ export default function SupportPage() {
             <br />
             {f.city}, {f.region} {f.postalCode}
           </address>
-          <p className="tabular font-mono text-xs text-muted">{f.coordinates.display}</p>
-          <p className="font-mono text-xs text-muted">EIN {COMPANY.ein}</p>
-        </HudCard>
+          <p className="text-sm text-muted">EIN {COMPANY.ein}</p>
+        </div>
       </div>
 
       <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
         <div className="flex flex-col gap-4">
-          <SectionHeader eyebrow="TRACK AN ORDER" title="Rig Forge Live" />
-          <p className="text-secondary">Every order has a live telemetry page with technician logs, burn-in data and carrier tracking.</p>
+          <SectionHeader title="Track an order" />
+          <p className="text-secondary">Every order has its own page showing progress, test results and shipping tracking.</p>
           <Link href="/telemetry" className="btn-overclock self-start">
             Track an order
           </Link>
         </div>
         <div>
-          <h2 className="hud-eyebrow mb-4">Field Manual</h2>
+          <h2 className="hud-title mb-4 text-2xl">Frequently asked questions</h2>
           <div className="flex flex-col gap-2">
             {FAQ.map(([q, a]) => (
               <details key={q} className="hud-panel group p-0">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 font-display text-sm font-semibold tracking-wide uppercase">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 font-medium">
                   {q}
-                  <span className="font-mono text-volt transition-transform group-open:rotate-45">+</span>
+                  <span className="text-xl leading-none text-muted transition-transform group-open:rotate-45">+</span>
                 </summary>
                 <p className="border-t border-hairline px-4 py-4 text-sm leading-relaxed text-secondary">{a}</p>
               </details>

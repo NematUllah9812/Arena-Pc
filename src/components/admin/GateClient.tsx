@@ -1,7 +1,6 @@
 'use client';
 import { useState, type FormEvent } from 'react';
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
-import { HudCard } from '@/components/hud/HudCard';
 import { adminFetch } from './adminFetch';
 
 type Mode = 'login' | 'enroll';
@@ -28,7 +27,7 @@ export function GateClient({ bootstrapAvailable, invite, inviteCodename }: { boo
       if (!fin.ok) throw new Error(fin.detail ?? fin.error);
       window.location.href = '/admin';
     } catch (e) {
-      setErr(e instanceof Error ? (e.name === 'NotAllowedError' ? 'Passkey ceremony cancelled or timed out.' : e.message) : 'Vault denied.');
+      setErr(e instanceof Error ? (e.name === 'NotAllowedError' ? 'Passkey request was cancelled or timed out. Please try again.' : e.message) : 'Sign-in failed.');
     } finally {
       setBusy(false);
     }
@@ -65,7 +64,7 @@ export function GateClient({ bootstrapAvailable, invite, inviteCodename }: { boo
       if (!fin.ok) throw new Error(fin.detail ?? fin.error);
       window.location.href = '/admin';
     } catch (e) {
-      setErr(e instanceof Error ? (e.name === 'NotAllowedError' ? 'Passkey ceremony cancelled or timed out.' : e.message) : 'Enrollment failed.');
+      setErr(e instanceof Error ? (e.name === 'NotAllowedError' ? 'Passkey request was cancelled or timed out. Please try again.' : e.message) : 'Setup failed.');
       setEnroll(null);
     } finally {
       setBusy(false);
@@ -73,8 +72,8 @@ export function GateClient({ bootstrapAvailable, invite, inviteCodename }: { boo
   };
 
   return (
-    <HudCard tone="tungsten" innerClassName="p-6">
-      <div className="mb-6 grid grid-cols-2 gap-px border border-hairline bg-hairline">
+    <div className="rounded-2xl border border-hairline bg-white p-6 shadow-sm">
+      <div className="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-chassis p-1">
         {(['login', 'enroll'] as const).map((m) => (
           <button
             key={m}
@@ -84,72 +83,72 @@ export function GateClient({ bootstrapAvailable, invite, inviteCodename }: { boo
               setErr(null);
               setEnroll(null);
             }}
-            className={`py-2.5 font-mono text-[0.65rem] tracking-[0.16em] uppercase ${mode === m ? 'bg-tungsten/15 text-tungsten' : 'bg-chassis text-muted hover:text-primary'}`}
+            className={`rounded-md py-2 text-sm font-medium transition-colors ${mode === m ? 'bg-white text-primary shadow-sm' : 'text-muted hover:text-primary'}`}
           >
-            {m === 'login' ? 'Authenticate' : 'Enroll Operator'}
+            {m === 'login' ? 'Sign in' : 'Set up account'}
           </button>
         ))}
       </div>
 
       {mode === 'login' ? (
-        <form onSubmit={login} className="flex flex-col gap-4">
+        <form key="login" onSubmit={login} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5">
-            <span className="hud-label">Codename</span>
-            <input name="codename" className="hud-input uppercase" required autoComplete="username webauthn" maxLength={32} />
+            <span className="hud-label">Username</span>
+            <input name="codename" className="hud-input" required autoComplete="username webauthn" maxLength={32} />
           </label>
           <label className="flex flex-col gap-1.5">
             <span className="hud-label">Authenticator code</span>
-            <input name="totp" className="hud-input tabular tracking-[0.4em]" required inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" />
+            <input name="totp" className="hud-input tabular" required inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" />
           </label>
-          <button type="submit" className="btn-overclock tone-tungsten" disabled={busy}>
-            {busy ? 'Awaiting passkey…' : 'Unlock with Passkey'}
+          <button type="submit" className="btn-overclock" disabled={busy}>
+            {busy ? 'Waiting for passkey…' : 'Continue with passkey'}
           </button>
         </form>
       ) : !enroll ? (
-        <form onSubmit={beginEnroll} className="flex flex-col gap-4">
-          <p className="text-xs text-secondary">
-            {invite ? 'Invite detected. Choose the codename the Overseer issued it for.' : bootstrapAvailable ? 'The vault is empty. Enroll the first Overseer with the bootstrap token.' : 'Enrollment requires an Overseer-issued invite link.'}
+        <form key="enroll-start" onSubmit={beginEnroll} className="flex flex-col gap-4">
+          <p className="text-sm text-secondary">
+            {invite ? 'You’ve been invited. Enter the username the invite was created for.' : bootstrapAvailable ? 'No admins yet. Set up the first owner account with the setup token.' : 'You need an invite link from an owner to set up an account.'}
           </p>
           <label className="flex flex-col gap-1.5">
-            <span className="hud-label">Codename</span>
-            <input name="codename" className="hud-input uppercase" required defaultValue={inviteCodename ?? ''} pattern="[A-Za-z][A-Za-z0-9_\-]{2,31}" maxLength={32} />
+            <span className="hud-label">Username</span>
+            <input name="codename" className="hud-input" required defaultValue={inviteCodename ?? ''} pattern="[A-Za-z][A-Za-z0-9_\-]{2,31}" maxLength={32} />
           </label>
           {!invite ? (
             <label className="flex flex-col gap-1.5">
-              <span className="hud-label">Bootstrap token</span>
+              <span className="hud-label">Setup token</span>
               <input name="bootstrap" type="password" className="hud-input" required disabled={!bootstrapAvailable} autoComplete="off" />
             </label>
           ) : null}
-          <button type="submit" className="btn-overclock tone-tungsten" disabled={busy || (!invite && !bootstrapAvailable)}>
-            {busy ? 'Verifying…' : 'Begin Enrollment'}
+          <button type="submit" className="btn-overclock" disabled={busy || (!invite && !bootstrapAvailable)}>
+            {busy ? 'Checking…' : 'Continue'}
           </button>
         </form>
       ) : (
-        <form onSubmit={finishEnroll} className="flex flex-col gap-4">
-          <p className="text-xs text-secondary">
-            Role granted: <span className="font-mono text-tungsten">{enroll.role}</span>. Add this secret to your authenticator app, then enter the current code and register a hardware passkey.
+        <form key="enroll-finish" onSubmit={finishEnroll} className="flex flex-col gap-4">
+          <p className="text-sm text-secondary">
+            Role: <span className="font-medium text-primary">{enroll.role}</span>. Add this key to your authenticator app, enter the 6-digit code, then create a passkey on this device.
           </p>
-          <div className="border border-hairline bg-void p-3">
-            <p className="hud-label mb-1">TOTP secret (shown once)</p>
+          <div className="rounded-lg border border-hairline bg-chassis p-3">
+            <p className="hud-label mb-1">Authenticator key (shown once)</p>
             <p className="font-mono text-sm break-all text-volt select-all">{enroll.secret}</p>
-            <a href={enroll.uri} className="mt-2 inline-block font-mono text-[0.65rem] text-cryo hover:underline">
-              Open in authenticator (otpauth://)
+            <a href={enroll.uri} className="mt-2 inline-block text-xs text-volt hover:underline">
+              Open in authenticator app
             </a>
           </div>
           <label className="flex flex-col gap-1.5">
-            <span className="hud-label">Current authenticator code</span>
-            <input name="totp" className="hud-input tabular tracking-[0.4em]" required inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" />
+            <span className="hud-label">6-digit code</span>
+            <input name="totp" className="hud-input tabular" required inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" />
           </label>
-          <button type="submit" className="btn-overclock tone-tungsten" disabled={busy}>
-            {busy ? 'Awaiting passkey…' : 'Register Passkey & Enter'}
+          <button type="submit" className="btn-overclock" disabled={busy}>
+            {busy ? 'Waiting for passkey…' : 'Create passkey & sign in'}
           </button>
         </form>
       )}
       {err ? (
-        <p role="alert" className="mt-4 border-l-2 border-conflict bg-conflict/5 px-3 py-2 font-mono text-xs text-conflict">
+        <p role="alert" className="mt-4 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-conflict">
           {err}
         </p>
       ) : null}
-    </HudCard>
+    </div>
   );
 }

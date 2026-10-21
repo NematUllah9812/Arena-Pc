@@ -116,15 +116,15 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
           code: 'INFO_FOUNDRY_BIOS_AUTO_FLASH',
           tier: 'TIGHT_TOLERANCE',
           involvedSlots: ['CPU', 'MOTHERBOARD'],
-          title: 'Foundry BIOS Pre-Flash Queued (Included Free)',
+          title: 'BIOS update included free',
           explanation: `${motherboard.name} ships with factory BIOS v${motherboard.specs.bios_version_shipped}, whereas ${cpu.name} requires v${cpu.specs.requires_bios_version}.`,
           remediationSuggestion:
-            'Because you selected Pro-Built Foundry Assembly, our technicians will flash the latest AGESA/microcode prior to burn-in at $0 cost.'
+            'Because we’re building this PC, our technicians update the BIOS before testing at no extra cost.'
         });
       } else if (hasBiosFlashbackButton) {
         const service = {
           serviceCode: SERVICE_CODES.BIOS_FLASH_DIY,
-          label: 'Pre-Ship Bench BIOS Update & Socket Inspection',
+          label: 'BIOS update before shipping',
           priceCents: FEES.DIY_BIOS_PREFLASH_CENTS,
           mandatory: false
         };
@@ -132,10 +132,10 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
           code: 'WARN_DIY_USB_BIOS_FLASHBACK_AVAILABLE',
           tier: 'TIGHT_TOLERANCE',
           involvedSlots: ['CPU', 'MOTHERBOARD'],
-          title: 'USB BIOS FlashBack Required Before First Boot',
-          explanation: `${motherboard.name} includes a rear USB BIOS FlashBack button, allowing you to update to BIOS v${cpu.specs.requires_bios_version} using a FAT32 USB drive without an older CPU.`,
+          title: 'BIOS update needed before first start',
+          explanation: `${cpu.name} needs BIOS v${cpu.specs.requires_bios_version}. ${motherboard.name} has a USB BIOS FlashBack button, so you can update it from a USB drive without a processor installed.`,
           remediationSuggestion:
-            'Flash via USB yourself upon delivery, or check the $15 Vortex Pre-Ship BIOS Flash Service at checkout.',
+            `Update it yourself with a USB drive, or add our ${'$'}${FEES.DIY_BIOS_PREFLASH_CENTS / 100} BIOS update before shipping.`,
           autoInjectedService: service
         });
         optionalServices.push(service);
@@ -143,7 +143,7 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
         // Board has NO flashback button and user selected DIY Parts-Only!
         const service = {
           serviceCode: SERVICE_CODES.BIOS_FLASH_DIY,
-          label: 'Mandatory Pre-Ship Bench BIOS Flash (Board Lacks USB FlashBack)',
+          label: 'Required BIOS update before shipping',
           priceCents: FEES.DIY_BIOS_PREFLASH_CENTS,
           mandatory: true
         };
@@ -151,17 +151,17 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
           code: 'WARN_NO_FLASHBACK_HEADER_MANDATORY_SERVICE',
           tier: 'TIGHT_TOLERANCE',
           involvedSlots: ['CPU', 'MOTHERBOARD'],
-          title: 'Motherboard Lacks CPU-Less BIOS FlashBack Button',
-          explanation: `${motherboard.name} cannot boot ${cpu.name} out of the box and lacks a CPU-less USB FlashBack button.`,
+          title: 'Motherboard needs a BIOS update for this processor',
+          explanation: `${motherboard.name} can’t start ${cpu.name} with its factory BIOS, and it can’t be updated without a working processor.`,
           remediationSuggestion:
-            'We have automatically attached our $15 Pre-Ship Bench BIOS Flash Service so your board arrives ready to POST.',
+            `We’ve added our ${'$'}${FEES.DIY_BIOS_PREFLASH_CENTS / 100} BIOS update so the board arrives ready to go.`,
           autoInjectedService: service
         });
         autoInjectedLogisticsItems.push({
           code: SERVICE_CODES.BIOS_FLASH_DIY,
-          name: 'Foundry Pre-Ship BIOS Update & POST Verification',
+          name: 'BIOS update before shipping',
           priceCents: FEES.DIY_BIOS_PREFLASH_CENTS,
-          reason: `${motherboard.name} requires BIOS v${cpu.specs.requires_bios_version} and has no CPU-less USB FlashBack button.`
+          reason: `${motherboard.name} needs BIOS v${cpu.specs.requires_bios_version} for this processor and can’t update itself.`
         });
       }
     }
@@ -355,7 +355,7 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
         involvedSlots: ['CPU_COOLER', 'CASE'],
         title: `Cooler Clears Side Panel by ${delta}mm`,
         explanation: `${cooler.name} (${cooler.specs.height_mm}mm) inside ${pcCase.name} (${pcCase.specs.max_cpu_cooler_height_mm}mm max).`,
-        remediationSuggestion: 'Foundry technicians verify glass-panel clearance before sealing.'
+        remediationSuggestion: 'If we build it, a technician checks the side-panel clearance before closing the case.'
       });
     }
   }
@@ -383,7 +383,7 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
         title: `Front Cooler Fan Requires +${Math.max(1, Math.ceil(CLEARANCE.RAM_VERIFIED_BUFFER_MM - deltaMm))}mm Vertical Clip Offset`,
         explanation: `RAM height (${tallestRamMm}mm) requires shifting the front fan slightly upward on the heatsink fins.`,
         remediationSuggestion:
-          'Foundry technicians will offset the front fan clip during assembly and verify glass panel clearance.'
+          'If we build it, a technician adjusts the fan clip and checks clearance during assembly.'
       });
     }
   }
@@ -414,9 +414,9 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
     if (heaviestGpuGrams >= FEES.GPU_FOAM_BRACE_THRESHOLD_GRAMS) {
       autoInjectedLogisticsItems.push({
         code: SERVICE_CODES.FOAM_BRACE,
-        name: 'Instapak Quick RT Molded Internal GPU Transit Brace + Anti-Sag Bracket',
+        name: 'Protective GPU shipping foam + support bracket',
         priceCents: 0, // Included in $149 Pro-Built Foundry SLA
-        reason: `Selected GPU mass (${heaviestGpuGrams.toLocaleString('en-US')}g) exceeds the 1,200g PCIe shear threshold during carrier transit.`
+        reason: `Your graphics card weighs ${heaviestGpuGrams.toLocaleString('en-US')} g, so we add foam to protect it in shipping. Free.`
       });
     }
   }
@@ -496,9 +496,9 @@ export function evaluateBuildCompatibilityV2(build: BuildManifest): Compatibilit
       code: 'ERR_PRO_BUILT_INCOMPLETE',
       tier: 'HARD_CONFLICT',
       involvedSlots: missingSlots,
-      title: `Pro-Built Rig Incomplete (${missingSlots.length} slot${missingSlots.length === 1 ? '' : 's'} empty)`,
-      explanation: `Foundry assembly requires a complete bootable system. Missing: ${missingSlots.join(', ')}.`,
-      remediationSuggestion: 'Fill the empty slots or switch to DIY Parts-Only dispatch.'
+      title: `${missingSlots.length} required part${missingSlots.length === 1 ? '' : 's'} still needed`,
+      explanation: 'We can only assemble a complete PC. Add the missing parts listed above.',
+      remediationSuggestion: 'Add the missing parts, or choose “Parts only” to buy just what you’ve picked.'
     });
   }
 

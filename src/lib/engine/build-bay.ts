@@ -34,62 +34,62 @@ export const STAGES: Record<BuildBayStage, StageDefinition> = {
     index: 1,
     label: 'Order Confirmed',
     short: 'CONFIRMED',
-    customerTelemetry: 'Order locked; parts reserved in Austin Hub.',
-    technicianRequirement: 'Auto-verified via reserve_inventory_atomic.',
+    customerTelemetry: 'We received your order and reserved your parts.',
+    technicianRequirement: 'Done automatically when the order is placed.',
     requiredFields: []
   },
   PARTS_ALLOCATED_BIN_LOCKED: {
     stage: 'PARTS_ALLOCATED_BIN_LOCKED',
     index: 2,
-    label: 'Parts Allocated // Bin Locked',
+    label: 'Parts Reserved',
     short: 'BIN LOCKED',
-    customerTelemetry: 'Serial numbers & warehouse bin numbers scanned.',
-    technicianRequirement: 'Barcode scan of each component serial number.',
+    customerTelemetry: 'Every part is picked and its serial number recorded.',
+    technicianRequirement: 'Scan or type the serial number of each part.',
     requiredFields: ['serials']
   },
   BENCH_ASSEMBLY_IN_PROGRESS: {
     stage: 'BENCH_ASSEMBLY_IN_PROGRESS',
     index: 3,
-    label: 'Bench Assembly In Progress',
+    label: 'Assembly',
     short: 'ASSEMBLY',
-    customerTelemetry: 'Assigned technician badge + anti-static bench bay ID.',
-    technicianRequirement: 'Technician claims build ticket; checks TIGHT_TOLERANCE notes.',
+    customerTelemetry: 'A named technician assembles and cable-manages your PC.',
+    technicianRequirement: 'Enter your bench number. Check any tight-fit notes before you start.',
     requiredFields: ['technician_code', 'bench_bay_id']
   },
   BIOS_FLASH_AND_EXPO_TUNING: {
     stage: 'BIOS_FLASH_AND_EXPO_TUNING',
     index: 4,
-    label: 'BIOS Flash & EXPO Tuning',
+    label: 'BIOS & Memory Setup',
     short: 'BIOS / EXPO',
-    customerTelemetry: 'Exact BIOS version flashed & RAM EXPO/XMP speed locked.',
-    technicianRequirement: 'Technician inputs flashed BIOS revision & memory timings.',
+    customerTelemetry: 'Latest BIOS installed and memory set to its rated speed.',
+    technicianRequirement: 'Enter the BIOS version you installed and the memory profile you enabled.',
     requiredFields: ['bios_version_flashed', 'expo_xmp_profile_verified']
   },
   OCCT_THERMAL_BURN_IN_4HR: {
     stage: 'OCCT_THERMAL_BURN_IN_4HR',
     index: 5,
-    label: 'OCCT Thermal Burn-In (4hr)',
+    label: '4-Hour Stress Test',
     short: 'BURN-IN',
-    customerTelemetry: 'Recorded thermal curve, CPU/GPU peaks, 3DMark Time Spy score + downloadable thermal proof.',
-    technicianRequirement: 'Mandatory upload of OCCT + 3DMark screenshot to Supabase Storage.',
+    customerTelemetry: 'Temperatures and benchmark scores recorded — you get the report.',
+    technicianRequirement: 'Enter the temperatures and score, and upload a screenshot of the results.',
     requiredFields: ['idle_cpu_temp_c', 'peak_occt_cpu_temp_c', 'peak_furmark_gpu_temp_c', 'time_spy_score', 'proof_screenshot']
   },
   INSTAPAK_FOAM_CRATING: {
     stage: 'INSTAPAK_FOAM_CRATING',
     index: 6,
-    label: 'Instapak Foam Crating',
+    label: 'Protective Packing',
     short: 'CRATING',
-    customerTelemetry: 'Instapak Quick RT foam brace molded around GPU & double-walled shock crate sealed.',
-    technicianRequirement: 'Checklist confirmation of internal GPU foam brace.',
+    customerTelemetry: 'Foam-braced inside the case and double-boxed for shipping.',
+    technicianRequirement: 'Confirm the PC is packed (and the GPU foam is added if needed).',
     requiredFields: ['foam_brace_molded', 'crate_sealed']
   },
   DISPATCHED_CARRIER: {
     stage: 'DISPATCHED_CARRIER',
     index: 7,
-    label: 'Dispatched // Carrier',
+    label: 'Shipped',
     short: 'DISPATCHED',
-    customerTelemetry: 'Live UPS/FedEx freight tracking + printable System Blueprint & BIOS profile.',
-    technicianRequirement: 'Carrier tracking number sync.',
+    customerTelemetry: 'On its way with UPS/FedEx tracking and your build sheet.',
+    technicianRequirement: 'Enter the carrier and tracking number.',
     requiredFields: ['carrier', 'tracking_number']
   },
   DELIVERED: {
@@ -97,8 +97,8 @@ export const STAGES: Record<BuildBayStage, StageDefinition> = {
     index: 8,
     label: 'Delivered',
     short: 'DELIVERED',
-    customerTelemetry: 'Rig delivered. Welcome to the Syndicate.',
-    technicianRequirement: 'Carrier delivery confirmation.',
+    customerTelemetry: 'Delivered. Enjoy your new PC!',
+    technicianRequirement: 'Confirm the order was delivered.',
     requiredFields: []
   }
 };

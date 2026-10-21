@@ -3,7 +3,7 @@ export function ThermalCurve({ points, height = 220 }: { points: { t: number; cp
   if (points.length < 2) return null;
   const W = 640;
   const H = height;
-  const pad = { l: 40, r: 12, t: 14, b: 26 };
+  const pad = { l: 40, r: 72, t: 14, b: 26 };
   const tMax = Math.max(...points.map((p) => p.t));
   const yMin = 20;
   const yMax = Math.max(95, Math.ceil(Math.max(...points.flatMap((p) => [p.cpu, p.gpu])) / 5) * 5);
@@ -17,10 +17,10 @@ export function ThermalCurve({ points, height = 220 }: { points: { t: number; cp
 
   return (
     <figure className="w-full">
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="OCCT thermal burn-in curve">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Temperature during stress test">
         {grid.map((v) => (
           <g key={v}>
-            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="var(--line-hairline)" strokeWidth="1" />
+            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="var(--border)" strokeWidth="1" />
             <text x={pad.l - 6} y={y(v) + 3} textAnchor="end" fontSize="9" fill="var(--text-muted)" fontFamily="var(--font-mono)">
               {v}°
             </text>
@@ -45,14 +45,14 @@ export function ThermalCurve({ points, height = 220 }: { points: { t: number; cp
           );
         })}
       </svg>
-      <figcaption className="mt-2 flex gap-4 font-mono text-[0.65rem] tracking-[0.1em] text-muted uppercase">
+      <figcaption className="mt-2 flex gap-4 text-xs text-muted">
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 bg-tungsten" /> CPU package
+          <span className="h-0.5 w-4 bg-tungsten" /> CPU
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 bg-cryo" /> GPU hotspot
+          <span className="h-0.5 w-4 bg-cryo" /> GPU
         </span>
-        <span>{points.length} samples · OCCT + FurMark</span>
+        <span>{points.length} readings over the test</span>
       </figcaption>
     </figure>
   );

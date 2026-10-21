@@ -4,10 +4,10 @@ import { getRepo } from '@/lib/repo';
 import { COMPANY, FEES } from '@/lib/config/company';
 import { STAGES } from '@/lib/engine/build-bay';
 import { CATEGORY_LABEL, CATEGORY_SLUG, money } from '@/lib/format';
-import { HudCard, SectionHeader } from '@/components/hud/HudCard';
+import { SectionHeader } from '@/components/hud/HudCard';
 import { PackageCard } from '@/components/product/PackageCard';
 import { FlashDealBoard } from '@/components/deals/FlashDealBoard';
-import { SearchButton } from '@/components/search/SearchPalette';
+import { CheckIcon, ChevronRight, ClockIcon, ShieldIcon, TruckIcon, WrenchIcon } from '@/components/ui/Icons';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,13 +16,13 @@ const CATEGORY_TILES = [
   ['CPU', '/media/cat-cpu.webp'],
   ['MOTHERBOARD', '/media/cat-motherboard.webp'],
   ['RAM', '/media/cat-ram.webp'],
+  ['STORAGE', '/media/cat-storage.webp'],
   ['CPU_COOLER', '/media/cat-cooler.webp'],
   ['CASE', '/media/cat-case.webp'],
-  ['PSU', '/media/cat-psu.webp'],
-  ['STORAGE', '/media/cat-storage.webp']
+  ['PSU', '/media/cat-psu.webp']
 ] as const;
 
-const PIPELINE = ['PARTS_ALLOCATED_BIN_LOCKED', 'BENCH_ASSEMBLY_IN_PROGRESS', 'BIOS_FLASH_AND_EXPO_TUNING', 'OCCT_THERMAL_BURN_IN_4HR', 'INSTAPAK_FOAM_CRATING', 'DISPATCHED_CARRIER'] as const;
+const BUILD_STEPS = ['BENCH_ASSEMBLY_IN_PROGRESS', 'BIOS_FLASH_AND_EXPO_TUNING', 'OCCT_THERMAL_BURN_IN_4HR', 'INSTAPAK_FOAM_CRATING'] as const;
 
 export default async function HomePage() {
   const repo = getRepo();
@@ -31,100 +31,92 @@ export default async function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative overflow-hidden border-b border-hairline">
-        <div className="absolute inset-0">
-          <Image src="/media/hero-rig.webp" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-55" />
-          <div className="absolute inset-0 bg-gradient-to-r from-void via-void/85 to-void/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-void via-transparent to-void/40" />
-        </div>
-        <div className="container-hud relative grid min-h-[calc(100svh-var(--header-h)-36px)] content-center gap-10 py-16 md:py-24">
-          <div className="flex max-w-3xl flex-col gap-6">
-            <span className="hud-eyebrow">
-              <span className="status-dot pulse anim-continuous mr-2 text-verified" />
-              FOUNDRY ONLINE · AUSTIN US-CENTRAL · {COMPANY.hours.days} {COMPANY.hours.open}–{COMPANY.hours.close} CST
-            </span>
-            <h1 className="hud-title text-[clamp(2.75rem,8vw,6.5rem)] leading-[0.92]">
-              Forged.
-              <br />
-              Burned-in.
-              <br />
-              <span className="text-volt">Verified.</span>
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-secondary">
-              Custom gaming rigs engineered to the millimetre. Every build clears a 3-tier compatibility engine, a 4-hour OCCT thermal burn-in and ships with the proof.
+      <section className="bg-gradient-to-b from-[#f1f5ff] to-white">
+        <div className="container-hud grid items-center gap-10 py-12 md:py-16 lg:grid-cols-2">
+          <div className="flex flex-col gap-5">
+            <span className="hud-eyebrow">Built and tested in Austin, Texas</span>
+            <h1 className="hud-title text-4xl md:text-5xl">Custom gaming PCs, built right the first time.</h1>
+            <p className="max-w-lg text-lg text-secondary">
+              Pick a ready-made PC or choose your own parts. Every build is checked for compatibility, assembled by a technician and stress-tested for 4 hours before it ships.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/forge" className="btn-overclock">
-                Open Rig Forge
+              <Link href="/syndicate" className="btn-overclock">
+                Shop prebuilt PCs
               </Link>
-              <Link href="/syndicate" className="btn-ghost">
-                Syndicate Rigs
+              <Link href="/forge" className="btn-ghost">
+                Build your own
               </Link>
-              <SearchButton />
             </div>
+            <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-secondary">
+              {['Free insured shipping', 'Free assembly on prebuilt PCs', 'Every PC stress-tested'].map((t) => (
+                <li key={t} className="flex items-center gap-1.5">
+                  <CheckIcon size={16} className="text-verified" />
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
-          <dl className="grid max-w-4xl grid-cols-2 gap-px border border-hairline bg-hairline md:grid-cols-4">
-            {[
-              ['4 HR', 'OCCT + FurMark burn-in'],
-              ['±3 MM', 'Clearance tolerance'],
-              ['16:00', 'CST same-day DIY cutoff'],
-              ['$0', `Assembly on Syndicate rigs`]
-            ].map(([v, l]) => (
-              <div key={l} className="bg-void/80 p-4 backdrop-blur">
-                <dt className="hud-label">{l}</dt>
-                <dd className="tabular mt-1 font-display text-2xl font-bold text-volt">{v}</dd>
+          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-chassis shadow-[0_20px_50px_-20px_rgba(16,24,40,0.35)]">
+            <Image src="/media/hero-rig.webp" alt="A custom gaming PC with RGB lighting on a desk" fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+          </div>
+        </div>
+      </section>
+
+      {/* TRUST BAR */}
+      <section className="border-y border-hairline bg-white">
+        <ul className="container-hud grid grid-cols-2 gap-6 py-6 md:grid-cols-4">
+          {[
+            [TruckIcon, 'Free shipping', `Parts ship same day before ${FEES.DIY_SAME_DAY_CUTOFF_HOUR - 12} PM CST`],
+            [ShieldIcon, 'Compatibility checked', 'We flag parts that won’t fit or work together'],
+            [WrenchIcon, 'Expert assembly', `${money(FEES.PRO_BUILT_ASSEMBLY_CENTS)} — free on prebuilt PCs`],
+            [ClockIcon, 'Real support', `${COMPANY.hours.days.replace('–', ' – ')}, 9 AM – 9 PM CST`]
+          ].map(([Icon, title, sub]) => {
+            const I = Icon as typeof TruckIcon;
+            return (
+              <li key={title as string} className="flex items-start gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#eff6ff] text-volt">
+                  <I size={20} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-primary">{title as string}</p>
+                  <p className="text-[0.8125rem] text-secondary">{sub as string}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* CATEGORIES */}
+      <section className="container-hud py-14">
+        <div className="flex items-end justify-between gap-4">
+          <SectionHeader title="Shop by category" />
+          <Link href="/catalog" className="mb-6 flex items-center gap-1 text-sm font-medium text-volt hover:underline">
+            All parts <ChevronRight size={16} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {CATEGORY_TILES.map(([c, img]) => (
+            <Link key={c} href={`/catalog/${CATEGORY_SLUG[c]}`} className="group flex flex-col items-center gap-3 rounded-[14px] border border-hairline bg-white p-4 transition hover:border-[#d1d5db] hover:shadow-[0_6px_20px_-6px_rgba(16,24,40,0.12)]">
+              <div className="relative aspect-square w-full">
+                <Image src={img} alt="" fill sizes="(max-width: 640px) 45vw, 22vw" className="object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
               </div>
-            ))}
-          </dl>
+              <span className="text-sm font-semibold text-primary">{CATEGORY_LABEL[c]}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* FULFILLMENT MODES */}
-      <section className="container-hud py-20">
-        <SectionHeader eyebrow="FULFILLMENT PROTOCOL" title="Two ways to deploy" />
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          <HudCard innerClassName="flex h-full flex-col gap-4 p-7">
-            <span className="font-mono text-xs tracking-[0.2em] text-cryo">MODE A</span>
-            <h3 className="hud-title text-3xl">DIY Component Kit</h3>
-            <p className="text-secondary">Loose, factory-sealed components dispatched from the nearest hub. Every manifest still runs through the compatibility engine before it ships.</p>
-            <ul className="mt-2 space-y-2 font-mono text-sm text-secondary">
-              <li>› Same-day dispatch on orders before 16:00 CST</li>
-              <li>› Optional pre-ship BIOS flash &amp; socket pin inspection · {money(FEES.DIY_BIOS_PREFLASH_CENTS)}</li>
-              <li>› Mandatory flash auto-added when a board can&rsquo;t boot your CPU and lacks flashback</li>
-            </ul>
-            <Link href="/catalog" className="btn-ghost mt-auto self-start">
-              Shop components
-            </Link>
-          </HudCard>
-          <HudCard tone="selected" innerClassName="flex h-full flex-col gap-4 p-7">
-            <span className="font-mono text-xs tracking-[0.2em] text-volt">MODE B</span>
-            <h3 className="hud-title text-3xl">Pro-Built Foundry Rig</h3>
-            <p className="text-secondary">
-              Assembled by a named technician on an anti-static bench, cable-routed, BIOS and EXPO tuned, then stress-tested for 72 hours before crating. {money(FEES.PRO_BUILT_ASSEMBLY_CENTS)} flat —
-              waived on every Syndicate package.
-            </p>
-            <ul className="mt-2 space-y-2 font-mono text-sm text-secondary">
-              <li>› 4-hour OCCT + FurMark thermal burn-in with downloadable proof</li>
-              <li>› Instapak Quick RT foam brace molded around any GPU over {FEES.GPU_FOAM_BRACE_THRESHOLD_GRAMS.toLocaleString()} g</li>
-              <li>› Live 7-stage Build Bay telemetry from bin lock to freight</li>
-            </ul>
-            <Link href="/forge" className="btn-overclock mt-auto self-start">
-              Forge a Pro-Built rig
-            </Link>
-          </HudCard>
-        </div>
-      </section>
-
-      {/* SYNDICATE */}
-      <section className="border-y border-hairline bg-chassis/40 py-20">
+      {/* PREBUILT */}
+      <section className="bg-chassis py-14">
         <div className="container-hud">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <SectionHeader eyebrow="SYNDICATE PACKAGE OFFERS" title="Turnkey. Validated. Assembly waived." />
-            <Link href="/syndicate" className="hud-label hover:text-volt">
-              All packages →
+          <div className="flex items-end justify-between gap-4">
+            <SectionHeader title="Prebuilt gaming PCs">Tested combinations, ready to build. Assembly and the 4-hour stress test are included free.</SectionHeader>
+            <Link href="/syndicate" className="mb-6 hidden items-center gap-1 text-sm font-medium text-volt hover:underline sm:flex">
+              View all <ChevronRight size={16} />
             </Link>
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {packages.map((p) => (
               <PackageCard key={p.id} pkg={p} />
             ))}
@@ -132,106 +124,84 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FLASH DEALS */}
+      {/* DEALS */}
       {deals.length ? (
-        <section className="container-hud py-20">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <SectionHeader eyebrow="LIQUIDATION // LIVE" title={<>Flash <span className="text-tungsten">Drops</span></>} />
-            <Link href="/deals" className="hud-label hover:text-tungsten">
-              All drops →
+        <section className="container-hud py-14">
+          <div className="flex items-end justify-between gap-4">
+            <SectionHeader title="Today’s deals">Limited quantities at these prices.</SectionHeader>
+            <Link href="/deals" className="mb-6 flex items-center gap-1 text-sm font-medium text-volt hover:underline">
+              All deals <ChevronRight size={16} />
             </Link>
           </div>
           <FlashDealBoard initial={deals} limit={3} />
         </section>
       ) : null}
 
-      {/* ENGINE */}
-      <section className="border-y border-hairline py-20">
-        <div className="container-hud grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-          <div className="flex flex-col gap-5">
-            <SectionHeader eyebrow="COMPATIBILITY ENGINE V2" title="Three tiers. Zero guesswork." />
-            <p className="text-secondary">
-              Socket and chipset are table stakes. The engine checks BIOS revision against CPU microcode, GPU length and radiator thickness against chassis clearance, air-cooler overhang against RAM
-              heatspreader height, and PSU headroom against GPU transient spikes.
-            </p>
-            <Link href="/forge" className="btn-ghost self-start">
-              Run a build through it
+      {/* TWO WAYS TO BUY */}
+      <section className="container-hud py-14">
+        <SectionHeader title="Two ways to buy" />
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="flex flex-col gap-3 rounded-[14px] border border-hairline bg-white p-7">
+            <h3 className="text-xl font-semibold">Parts only</h3>
+            <p className="text-secondary">Factory-sealed parts shipped to you. We still check your cart for compatibility before it ships.</p>
+            <ul className="space-y-1.5 text-sm text-secondary">
+              <li className="flex gap-2">
+                <CheckIcon size={18} className="shrink-0 text-verified" /> Same-day shipping before {FEES.DIY_SAME_DAY_CUTOFF_HOUR - 12} PM CST
+              </li>
+              <li className="flex gap-2">
+                <CheckIcon size={18} className="shrink-0 text-verified" /> Optional BIOS update before shipping — {money(FEES.DIY_BIOS_PREFLASH_CENTS)}
+              </li>
+            </ul>
+            <Link href="/catalog" className="btn-ghost mt-auto self-start">
+              Shop parts
             </Link>
           </div>
-          <div className="grid gap-3">
-            {[
-              ['verified', 'VERIFIED_FIT', '≥ 3 mm clearance buffer on every axis. Socket, memory generation, BIOS and power all clear.'],
-              ['tolerance', 'TIGHT_TOLERANCE', 'Within 0–3 mm or a known-good edge case. Allowed — a technician manually verifies the fit at the bench.'],
-              ['conflict', 'HARD_CONFLICT', 'Physically or electrically impossible. DDR4 in a DDR5 board, a 44 mm DIMM under a 32 mm overhang. Checkout blocked.']
-            ].map(([k, t, d]) => (
-              <div key={t} className="hud-panel flex gap-4 p-5">
-                <span className={`badge badge-${k} h-fit shrink-0`}>{t.replace('_', ' ')}</span>
-                <p className="text-sm text-secondary">{d}</p>
-              </div>
-            ))}
+          <div className="flex flex-col gap-3 rounded-[14px] border-2 border-volt bg-white p-7">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-semibold">Built by us</h3>
+              <span className="badge badge-volt">Most popular</span>
+            </div>
+            <p className="text-secondary">
+              A technician assembles, cable-manages and stress-tests your PC, then ships it foam-protected. {money(FEES.PRO_BUILT_ASSEMBLY_CENTS)}, free on prebuilt PCs.
+            </p>
+            <ul className="space-y-1.5 text-sm text-secondary">
+              <li className="flex gap-2">
+                <CheckIcon size={18} className="shrink-0 text-verified" /> 4-hour stress test with a downloadable report
+              </li>
+              <li className="flex gap-2">
+                <CheckIcon size={18} className="shrink-0 text-verified" /> Follow every build step online
+              </li>
+            </ul>
+            <Link href="/forge" className="btn-overclock mt-auto self-start">
+              Start a build
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* BUILD BAY */}
-      <section className="container-hud py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
-          <HudCard innerClassName="relative aspect-[4/3]">
-            <Image src="/media/foundry-bench.webp" alt="Technician bench in the Austin Build Bay" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-            <div className="absolute bottom-4 left-4 z-[1] font-mono text-[0.65rem] tracking-[0.18em] text-volt">BAY A-07 · ANTI-STATIC · ISO CLEANROOM</div>
-          </HudCard>
-          <div className="flex flex-col gap-6">
-            <SectionHeader eyebrow="RIG FORGE LIVE" title="Watch it get built." />
-            <ol className="flex flex-col">
-              {PIPELINE.map((s) => (
-                <li key={s} className="flex gap-4 border-b border-hairline py-3 last:border-0">
-                  <span className="tabular w-8 font-mono text-sm text-volt">{String(STAGES[s].index).padStart(2, '0')}</span>
+      {/* HOW WE BUILD */}
+      <section className="bg-chassis py-14">
+        <div className="container-hud grid items-center gap-10 lg:grid-cols-2">
+          <div className="relative aspect-[3/2] overflow-hidden rounded-2xl">
+            <Image src="/media/foundry-bench.webp" alt="A technician installing a processor on a motherboard" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+          </div>
+          <div>
+            <SectionHeader title="How we build your PC">You can follow each step live from your order page.</SectionHeader>
+            <ol className="space-y-4">
+              {BUILD_STEPS.map((s, i) => (
+                <li key={s} className="flex gap-4">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-sm font-semibold text-volt shadow-sm">{i + 1}</span>
                   <div>
-                    <p className="font-display text-sm font-semibold tracking-wide uppercase">{STAGES[s].label}</p>
-                    <p className="text-xs text-secondary">{STAGES[s].customerTelemetry}</p>
+                    <p className="font-semibold text-primary">{STAGES[s].label}</p>
+                    <p className="text-sm text-secondary">{STAGES[s].customerTelemetry}</p>
                   </div>
                 </li>
               ))}
             </ol>
-            <Link href="/telemetry/VL-ORD-88412" className="btn-ghost self-start">
-              View a live telemetry feed
+            <Link href="/telemetry/VL-ORD-88412" className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-volt hover:underline">
+              See an example order <ChevronRight size={16} />
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* CATEGORIES */}
-      <section className="border-t border-hairline bg-chassis/40 py-20">
-        <div className="container-hud">
-          <SectionHeader eyebrow="CATALOG" title="Component arsenal" />
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {CATEGORY_TILES.map(([c, img]) => (
-              <Link key={c} href={`/catalog/${CATEGORY_SLUG[c]}`} className="group">
-                <HudCard interactive innerClassName="relative aspect-square">
-                  <Image src={img} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover opacity-70 transition duration-300 group-hover:scale-105 group-hover:opacity-90" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-void via-void/30 to-transparent" />
-                  <span className="absolute bottom-4 left-4 z-[1] font-display text-lg font-semibold tracking-wide uppercase">{CATEGORY_LABEL[c]}</span>
-                </HudCard>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* HUBS */}
-      <section className="container-hud py-20">
-        <SectionHeader eyebrow="LOGISTICS GRID" title="Three hubs. One foundry." />
-        <div className="mt-10 grid gap-px border border-hairline bg-hairline md:grid-cols-3">
-          {COMPANY.hubs.map((h) => (
-            <div key={h.code} className="bg-chassis p-6">
-              <p className="font-mono text-xs tracking-[0.18em] text-volt">{h.code}</p>
-              <p className="mt-2 font-display text-xl font-semibold">{h.city}</p>
-              <p className="text-sm text-secondary">{h.role}</p>
-              <p className="tabular mt-3 font-mono text-xs text-muted">
-                {h.areaSqFt.toLocaleString()} sq ft · {h.detail}
-              </p>
-            </div>
-          ))}
         </div>
       </section>
     </>
